@@ -72,7 +72,10 @@
 .dsh-gv-body {
   display: flex;
   flex: 1 1 auto;
-  min-height: 260px;
+  /* A definite height keeps flex children from collapsing (TB) or growing to
+     the SVG's intrinsic aspect height (LR/Graph); all three layouts share it. */
+  height: clamp(420px, 60vh, 760px);
+  min-height: 420px;
 }
 
 .dsh-gv[data-layout='lr'] .dsh-gv-body {
@@ -104,8 +107,8 @@
   flex: 1 1 0;
   flex-direction: column;
   min-width: 0;
-  min-height: 0;
-  overflow: auto;
+  min-height: 240px;
+  overflow: hidden;
 }
 
 .dsh-gv-splitter {
@@ -218,13 +221,18 @@
 .dsh-gv-canvas {
   display: flex;
   flex: 1;
+  align-items: center;
   justify-content: center;
+  min-height: 0;
   padding: 16px;
+  overflow: hidden;
   background: var(--dsw-alias-bg-layer-1);
 }
 
 .dsh-gv-canvas svg {
   display: block;
+  width: 100%;
+  height: 100%;
   max-width: 100%;
-  height: auto;
+  max-height: 100%;
 }
