@@ -127,7 +127,11 @@ export function GraphvizPanel({ props }: { props: FenceProps }) {
     const handle = event.currentTarget
     const container = containerRef.current
     if (container === null) return
-    handle.setPointerCapture(event.pointerId)
+    try {
+      handle.setPointerCapture(event.pointerId)
+    } catch {
+      // Synthetic or already-released pointers cannot be captured; dragging still tracks via the handle listeners.
+    }
     const move = (moveEvent: PointerEvent): void => {
       const rect = container.getBoundingClientRect()
       if (layout === 'lr') {
@@ -234,26 +238,27 @@ export function GraphvizPanel({ props }: { props: FenceProps }) {
         ))}
       </div>
       <div className="dsh-gv-body">
+        <div
+          className="dsh-gv-editor-pane"
+          style={showEditor ? editorStyle() : { display: 'none' }}
+        >
+          <MonacoEditor
+            value={source}
+            onChange={setSource}
+            ariaLabel={text('editor.aria')}
+            t={t}
+          />
+        </div>
         {showEditor ? (
-          <>
-            <div className="dsh-gv-editor-pane" style={editorStyle()}>
-              <MonacoEditor
-                value={source}
-                onChange={setSource}
-                ariaLabel={text('editor.aria')}
-                t={t}
-              />
-            </div>
-            <div
-              className="dsh-gv-splitter"
-              role="separator"
-              tabIndex={0}
-              aria-orientation={layout === 'lr' ? 'vertical' : 'horizontal'}
-              aria-label={text('splitter.label')}
-              onPointerDown={beginResize}
-              onKeyDown={resizeKey}
-            />
-          </>
+          <div
+            className="dsh-gv-splitter"
+            role="separator"
+            tabIndex={0}
+            aria-orientation={layout === 'lr' ? 'vertical' : 'horizontal'}
+            aria-label={text('splitter.label')}
+            onPointerDown={beginResize}
+            onKeyDown={resizeKey}
+          />
         ) : null}
         <div className="dsh-gv-graph">{pane}</div>
       </div>

@@ -124,7 +124,11 @@ interface MonacoWindow {
 }
 
 let loading: Promise<MonacoGlobal> | undefined
+let failedAt: number | undefined
 let dotRegistered = false
+
+/** How long a failed load keeps other editors on the plain-text fallback. */
+export const MONACO_FAILURE_COOLDOWN_MS = 60_000
 
 /**
  * Check whether the global already carries Monaco (another plugin may have loaded it).
@@ -149,14 +153,22 @@ export function loadMonaco(): Promise<MonacoGlobal> {
     return Promise.resolve(existing)
   }
   if (loading !== undefined) return loading
+  if (failedAt !== undefined && Date.now() - failedAt < MONACO_FAILURE_COOLDOWN_MS) {
+    return Promise.reject(new Error('Monaco is unavailable after a recent load failure'))
+  }
 
   loading = new Promise<MonacoGlobal>((resolve, reject) => {
     const scope = window as unknown as MonacoWindow
     const settle = (error?: Error): void => {
       window.clearTimeout(timer)
-      if (error !== undefined) loading = undefined
-      if (error === undefined) resolve(scope.monaco as MonacoGlobal)
-      else reject(error)
+      if (error !== undefined) {
+        loading = undefined
+        failedAt = Date.now()
+        reject(error)
+        return
+      }
+      failedAt = undefined
+      resolve(scope.monaco as MonacoGlobal)
     }
     const start = (): void => {
       const amd = scope.require

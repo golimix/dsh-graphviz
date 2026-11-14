@@ -96,7 +96,8 @@ describe('GraphvizFence', () => {
 
     fireEvent.click(screen.getByText('Graph'))
     expect(root.getAttribute('data-layout')).toBe('graph')
-    expect(screen.queryByTestId('editor')).toBeNull()
+    expect(screen.getByTestId('editor')).toBeTruthy()
+    expect((screen.getByTestId('editor').parentElement as HTMLElement).style.display).toBe('none')
     expect(screen.queryByRole('separator')).toBeNull()
   })
 

@@ -359,7 +359,9 @@ var MONACO_VERSION = "0.52.2";
 var MONACO_BASE = `https://cdn.jsdelivr.net/npm/monaco-editor@${MONACO_VERSION}/min/vs`;
 var MONACO_TIMEOUT_MS = 15e3;
 var loading;
+var failedAt;
 var dotRegistered = false;
+var MONACO_FAILURE_COOLDOWN_MS = 6e4;
 function existingMonaco() {
   const scope = window;
   return scope.monaco !== void 0 && typeof scope.monaco.editor?.create === "function" ? scope.monaco : void 0;
@@ -371,13 +373,21 @@ function loadMonaco() {
     return Promise.resolve(existing);
   }
   if (loading !== void 0) return loading;
+  if (failedAt !== void 0 && Date.now() - failedAt < MONACO_FAILURE_COOLDOWN_MS) {
+    return Promise.reject(new Error("Monaco is unavailable after a recent load failure"));
+  }
   loading = new Promise((resolve, reject) => {
     const scope = window;
     const settle = (error) => {
       window.clearTimeout(timer);
-      if (error !== void 0) loading = void 0;
-      if (error === void 0) resolve(scope.monaco);
-      else reject(error);
+      if (error !== void 0) {
+        loading = void 0;
+        failedAt = Date.now();
+        reject(error);
+        return;
+      }
+      failedAt = void 0;
+      resolve(scope.monaco);
     };
     const start = () => {
       const amd = scope.require;
@@ -681,7 +691,10 @@ function GraphvizPanel({ props }) {
     const handle = event.currentTarget;
     const container = containerRef.current;
     if (container === null) return;
-    handle.setPointerCapture(event.pointerId);
+    try {
+      handle.setPointerCapture(event.pointerId);
+    } catch {
+    }
     const move = (moveEvent) => {
       const rect = container.getBoundingClientRect();
       if (layout === "lr") {
@@ -773,29 +786,34 @@ function GraphvizPanel({ props }) {
           ))
         ] }),
         /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "dsh-gv-body", children: [
-          showEditor ? /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(import_jsx_runtime2.Fragment, { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { className: "dsh-gv-editor-pane", style: editorStyle(), children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
-              MonacoEditor,
-              {
-                value: source,
-                onChange: setSource,
-                ariaLabel: text("editor.aria"),
-                t
-              }
-            ) }),
-            /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
-              "div",
-              {
-                className: "dsh-gv-splitter",
-                role: "separator",
-                tabIndex: 0,
-                "aria-orientation": layout === "lr" ? "vertical" : "horizontal",
-                "aria-label": text("splitter.label"),
-                onPointerDown: beginResize,
-                onKeyDown: resizeKey
-              }
-            )
-          ] }) : null,
+          /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+            "div",
+            {
+              className: "dsh-gv-editor-pane",
+              style: showEditor ? editorStyle() : { display: "none" },
+              children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+                MonacoEditor,
+                {
+                  value: source,
+                  onChange: setSource,
+                  ariaLabel: text("editor.aria"),
+                  t
+                }
+              )
+            }
+          ),
+          showEditor ? /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+            "div",
+            {
+              className: "dsh-gv-splitter",
+              role: "separator",
+              tabIndex: 0,
+              "aria-orientation": layout === "lr" ? "vertical" : "horizontal",
+              "aria-label": text("splitter.label"),
+              onPointerDown: beginResize,
+              onKeyDown: resizeKey
+            }
+          ) : null,
           /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { className: "dsh-gv-graph", children: pane })
         ] })
       ]
