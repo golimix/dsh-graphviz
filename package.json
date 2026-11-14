@@ -40,7 +40,8 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
     "verify": "pnpm run typecheck && pnpm run test && pnpm run build && node scripts/verify-dist.mjs",
-    "prepare": "node scripts/build.mjs"
+    "prepare": "node scripts/build.mjs",
+    "pretest": "node scripts/build.mjs"
   },
   "dsh": {
     "bundle": {
