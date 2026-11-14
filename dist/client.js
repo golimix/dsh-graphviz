@@ -378,16 +378,16 @@ function loadMonaco() {
   }
   loading = new Promise((resolve, reject) => {
     const scope = window;
-    const settle = (error) => {
+    const settle = (error, value) => {
       window.clearTimeout(timer);
-      if (error !== void 0) {
+      if (error !== void 0 || value === void 0) {
         loading = void 0;
         failedAt = Date.now();
-        reject(error);
+        reject(error ?? new Error("Monaco loaded without an API"));
         return;
       }
       failedAt = void 0;
-      resolve(scope.monaco);
+      resolve(value);
     };
     const start = () => {
       const amd = scope.require;
@@ -398,14 +398,19 @@ function loadMonaco() {
       amd.config({ paths: { vs: MONACO_BASE } });
       amd(
         ["vs/editor/editor.main"],
-        () => {
-          const monaco = existingMonaco();
-          if (monaco === void 0) {
-            settle(new Error("Monaco loaded without a global API"));
+        (...values) => {
+          const monaco = values[0] ?? existingMonaco();
+          if (monaco === void 0 || typeof monaco.editor?.create !== "function") {
+            settle(new Error("Monaco loaded without an editor API"));
             return;
           }
-          registerDotLanguage(monaco);
-          settle();
+          try {
+            registerDotLanguage(monaco);
+          } catch (error) {
+            settle(new Error(`Monaco DOT language registration failed: ${describe(error)}`));
+            return;
+          }
+          settle(void 0, monaco);
         },
         (error) => settle(new Error(`Monaco editor failed: ${describe(error)}`))
       );

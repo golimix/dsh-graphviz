@@ -113,7 +113,7 @@ interface MonarchLanguage {
 
 /** AMD loader shape Monaco exposes on `window.require`. */
 interface AmdRequire {
-  (modules: string[], resolve: () => void, reject: (error: unknown) => void): void
+  (modules: string[], resolve: (...values: unknown[]) => void, reject: (error: unknown) => void): void
   config(config: { paths: Record<string, string> }): void
 }
 
@@ -159,16 +159,16 @@ export function loadMonaco(): Promise<MonacoGlobal> {
 
   loading = new Promise<MonacoGlobal>((resolve, reject) => {
     const scope = window as unknown as MonacoWindow
-    const settle = (error?: Error): void => {
+    const settle = (error?: Error, value?: MonacoGlobal): void => {
       window.clearTimeout(timer)
-      if (error !== undefined) {
+      if (error !== undefined || value === undefined) {
         loading = undefined
         failedAt = Date.now()
-        reject(error)
+        reject(error ?? new Error('Monaco loaded without an API'))
         return
       }
       failedAt = undefined
-      resolve(scope.monaco as MonacoGlobal)
+      resolve(value)
     }
     const start = (): void => {
       const amd = scope.require
@@ -179,14 +179,21 @@ export function loadMonaco(): Promise<MonacoGlobal> {
       amd.config({ paths: { vs: MONACO_BASE } })
       amd(
         ['vs/editor/editor.main'],
-        () => {
-          const monaco = existingMonaco()
-          if (monaco === undefined) {
-            settle(new Error('Monaco loaded without a global API'))
+        (...values: unknown[]) => {
+          // The AMD callback carries the module; the global may still be unset
+          // while the loader finishes, so prefer the callback value.
+          const monaco = (values[0] as MonacoGlobal | undefined) ?? existingMonaco()
+          if (monaco === undefined || typeof monaco.editor?.create !== 'function') {
+            settle(new Error('Monaco loaded without an editor API'))
             return
           }
-          registerDotLanguage(monaco)
-          settle()
+          try {
+            registerDotLanguage(monaco)
+          } catch (error) {
+            settle(new Error(`Monaco DOT language registration failed: ${describe(error)}`))
+            return
+          }
+          settle(undefined, monaco)
         },
         (error: unknown) => settle(new Error(`Monaco editor failed: ${describe(error)}`)),
       )
