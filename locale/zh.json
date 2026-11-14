@@ -1,0 +1,7 @@
+{
+  "meta": {
+    "title": "Graphviz 图形",
+    "description": "将 dot、graphviz、gv 代码围栏渲染为可交互的 Graphviz SVG 图形，支持源码编辑与布局切换。",
+    "detail": "docs/DETAIL.md"
+  }
+}
