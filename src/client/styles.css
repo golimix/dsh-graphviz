@@ -308,3 +308,22 @@
   outline: 2px solid var(--dsh-gv-accent);
   outline-offset: -2px;
 }
+
+.dsh-gv[data-locked='true'] .dsh-gv-splitter {
+  cursor: default;
+}
+
+.dsh-gv-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.dsh-gv[data-maximized='true'] {
+  position: fixed;
+  inset: 4vh 4vw;
+  z-index: 1000;
+  max-height: none;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);
+}

@@ -158,6 +158,34 @@ describe('GraphvizFence', () => {
     expect(body.style.display).toBe('')
   })
 
+  it('locks the panel size and removes the resize handles', async () => {
+    const { container } = render(<GraphvizFence code="digraph{a->b}" />)
+    await flushRender()
+    expect(screen.getByLabelText('Resize panel height')).toBeTruthy()
+    expect(screen.getByLabelText('Resize editor and graph')).toBeTruthy()
+    fireEvent.click(screen.getByLabelText('Lock size'))
+    expect(screen.queryByLabelText('Resize panel height')).toBeNull()
+    expect(screen.queryByLabelText('Resize editor and graph')).toBeNull()
+    expect(container.querySelector('.dsh-gv')?.getAttribute('data-locked')).toBe('true')
+    fireEvent.click(screen.getByLabelText('Unlock size'))
+    expect(screen.getByLabelText('Resize panel height')).toBeTruthy()
+  })
+
+  it('maximizes the view and closes it with Escape', async () => {
+    const { container } = render(<GraphvizFence code="digraph{a->b}" />)
+    await flushRender()
+    const root = container.querySelector('.dsh-gv') as HTMLElement
+    fireEvent.click(screen.getByLabelText('Maximize view'))
+    expect(root.getAttribute('data-maximized')).toBe('true')
+    expect(root.getAttribute('role')).toBe('dialog')
+    expect((container.querySelector('.dsh-gv-editor-pane') as HTMLElement).style.display).toBe('none')
+    expect(container.querySelector('.dsh-gv-backdrop')).toBeTruthy()
+    fireEvent.keyDown(window, { key: 'Escape' })
+    expect(root.getAttribute('data-maximized')).toBe('false')
+    expect(container.querySelector('.dsh-gv-backdrop')).toBeNull()
+    expect(screen.getByLabelText('Maximize view')).toBeTruthy()
+  })
+
   it('resizes the panel height from the handle and resets to auto', async () => {
     const { container } = render(<GraphvizFence code="digraph{a->b}" />)
     await flushRender()

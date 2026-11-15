@@ -23,6 +23,10 @@ export type GraphvizKey =
   | 'toolbar.expand'
   | 'collapsed.note'
   | 'height.label'
+  | 'toolbar.lock'
+  | 'toolbar.unlock'
+  | 'toolbar.maximize'
+  | 'toolbar.restore'
 
 /** English dictionary, the fallback for every other locale. */
 export const en: Record<GraphvizKey, string> = {
@@ -48,6 +52,10 @@ export const en: Record<GraphvizKey, string> = {
   'toolbar.expand': 'Expand',
   'collapsed.note': 'diagram hidden',
   'height.label': 'Resize panel height',
+  'toolbar.lock': 'Lock size',
+  'toolbar.unlock': 'Unlock size',
+  'toolbar.maximize': 'Maximize view',
+  'toolbar.restore': 'Restore view',
 }
 
 /** Chinese dictionary. */
@@ -74,6 +82,10 @@ export const zh: Record<GraphvizKey, string> = {
   'toolbar.expand': '展开',
   'collapsed.note': '图形已折叠',
   'height.label': '调整面板高度',
+  'toolbar.lock': '锁定尺寸',
+  'toolbar.unlock': '解锁尺寸',
+  'toolbar.maximize': '放大查看',
+  'toolbar.restore': '退出放大',
 }
 
 /** Dictionaries registered under the `graphviz` namespace. */

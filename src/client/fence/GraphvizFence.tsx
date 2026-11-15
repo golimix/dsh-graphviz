@@ -113,6 +113,8 @@ export function GraphvizPanel({ props }: { props: FenceProps }) {
   const [layout, setLayout] = useState<LayoutMode>('tb')
   const [split, setSplit] = useState<number | null>(null)
   const [collapsed, setCollapsed] = useState(false)
+  const [locked, setLocked] = useState(false)
+  const [maximized, setMaximized] = useState(false)
   const [state, setState] = useState<RenderState>(code.trim() === '' ? { kind: 'idle' } : { kind: 'loading', engineReady: false })
   const [retryToken, setRetryToken] = useState(0)
   const [idPrefix] = useState(nextIdPrefix)
@@ -295,7 +297,17 @@ export function GraphvizPanel({ props }: { props: FenceProps }) {
     return () => observer.disconnect()
   }, [])
 
-  const showEditor = layout !== 'graph'
+  // Escape leaves the maximized view; the diagram keeps its current zoom.
+  useEffect(() => {
+    if (!maximized) return
+    const onKey = (event: KeyboardEvent): void => {
+      if (event.key === 'Escape') setMaximized(false)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [maximized])
+
+  const showEditor = layout !== 'graph' && !maximized
 
   /**
    * Clamp a proposed split to the current pane bounds.
@@ -491,6 +503,14 @@ export function GraphvizPanel({ props }: { props: FenceProps }) {
   const resolvedBodyHeight = bodyHeight ?? (autoBodyHeight > 0 ? autoBodyHeight : null)
 
   /**
+   * Enter or leave the maximized view, returning to the fitted 100% view.
+   */
+  const toggleMaximize = (): void => {
+    setMaximized((value) => !value)
+    resetTransform()
+  }
+
+  /**
    * Start dragging the panel's bottom edge.
    * @param event - pointer down on the height handle.
    */
@@ -624,13 +644,26 @@ export function GraphvizPanel({ props }: { props: FenceProps }) {
   })()
 
   return (
-    <div
-      ref={containerRef}
-      className="dsh-gv"
-      data-layout={layout}
-      data-collapsed={collapsed}
-      data-testid="dsh-gv"
-    >
+    <>
+      {maximized ? (
+        <div
+          className="dsh-gv-backdrop"
+          aria-hidden="true"
+          onClick={toggleMaximize}
+        />
+      ) : null}
+      <div
+        ref={containerRef}
+        className="dsh-gv"
+        data-layout={layout}
+        data-collapsed={collapsed}
+        data-locked={locked}
+        data-maximized={maximized}
+        role={maximized ? 'dialog' : undefined}
+        aria-modal={maximized ? true : undefined}
+        aria-label={maximized ? text('graph.aria') : undefined}
+        data-testid="dsh-gv"
+      >
       <div className="dsh-gv-toolbar">
         <span className="dsh-gv-brand">{text('toolbar.label')}</span>
         {collapsed ? <span className="dsh-gv-collapsed-note">{text('collapsed.note')}</span> : null}
@@ -690,6 +723,27 @@ export function GraphvizPanel({ props }: { props: FenceProps }) {
                 ↺
               </button>
             </div>
+            <button
+              type="button"
+              className="dsh-gv-button"
+              data-active={locked}
+              aria-pressed={locked}
+              aria-label={text(locked ? 'toolbar.unlock' : 'toolbar.lock')}
+              title={text(locked ? 'toolbar.unlock' : 'toolbar.lock')}
+              onClick={() => setLocked((value) => !value)}
+            >
+              {locked ? '🔒' : '🔓'}
+            </button>
+            <button
+              type="button"
+              className="dsh-gv-button"
+              aria-pressed={maximized}
+              aria-label={text(maximized ? 'toolbar.restore' : 'toolbar.maximize')}
+              title={text(maximized ? 'toolbar.restore' : 'toolbar.maximize')}
+              onClick={toggleMaximize}
+            >
+              {text(maximized ? 'toolbar.restore' : 'toolbar.maximize')}
+            </button>
           </>
         )}
         <button
@@ -703,7 +757,15 @@ export function GraphvizPanel({ props }: { props: FenceProps }) {
       </div>
       <div
         className="dsh-gv-body"
-        style={collapsed ? { display: 'none' } : resolvedBodyHeight === null ? undefined : { height: `${resolvedBodyHeight}px` }}
+        style={
+          collapsed
+            ? { display: 'none' }
+            : maximized
+              ? { flex: '1 1 auto', height: 'auto', minHeight: 0 }
+              : resolvedBodyHeight === null
+                ? undefined
+                : { height: `${resolvedBodyHeight}px` }
+        }
       >
         <div
           className="dsh-gv-editor-pane"
@@ -717,19 +779,23 @@ export function GraphvizPanel({ props }: { props: FenceProps }) {
           />
         </div>
         {showEditor ? (
-          <div
-            className="dsh-gv-splitter"
-            role="separator"
-            tabIndex={0}
-            aria-orientation={layout === 'lr' ? 'vertical' : 'horizontal'}
-            aria-label={text('splitter.label')}
-            onPointerDown={beginResize}
-            onKeyDown={resizeKey}
-          />
+          locked ? (
+            <div className="dsh-gv-splitter" aria-hidden="true" />
+          ) : (
+            <div
+              className="dsh-gv-splitter"
+              role="separator"
+              tabIndex={0}
+              aria-orientation={layout === 'lr' ? 'vertical' : 'horizontal'}
+              aria-label={text('splitter.label')}
+              onPointerDown={beginResize}
+              onKeyDown={resizeKey}
+            />
+          )
         ) : null}
         <div className="dsh-gv-graph">{pane}</div>
       </div>
-      {collapsed ? null : (
+      {collapsed || locked || maximized ? null : (
         <div
           className="dsh-gv-height-handle"
           role="separator"
@@ -744,6 +810,7 @@ export function GraphvizPanel({ props }: { props: FenceProps }) {
           onKeyDown={heightKey}
         />
       )}
-    </div>
+      </div>
+    </>
   )
 }

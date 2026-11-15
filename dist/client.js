@@ -27,7 +27,7 @@ __export(index_exports, {
 module.exports = __toCommonJS(index_exports);
 
 // src/client/styles.css
-var styles_default = "/* Host-theme-aware chrome for the Graphviz fence panel. All colors come from\n   DSH theme tokens so light, dark, and third-party palettes inherit correctly. */\n\n.dsh-gv {\n  --dsh-gv-accent: var(--dsw-alias-brand-primary-new-colorprimary-new-color, #3b82f6);\n  display: flex;\n  flex-direction: column;\n  overflow: hidden;\n  border: 0.5px solid var(--dsw-alias-border-l2);\n  border-radius: 12px;\n  background: var(--dsw-alias-bg-layer-1);\n  color: var(--dsw-alias-label-primary);\n  font-family: var(--dsh-font-family-text, system-ui, sans-serif);\n}\n\n.dsh-gv-toolbar {\n  display: flex;\n  flex: 0 0 auto;\n  align-items: center;\n  gap: 6px;\n  padding: 8px 12px;\n  border-bottom: 0.5px solid var(--dsw-alias-border-l2);\n  background: var(--dsw-alias-bg-layer-2);\n  font-size: 12px;\n  user-select: none;\n}\n\n.dsh-gv-brand {\n  color: var(--dsh-gv-accent);\n  font-size: 13px;\n  font-weight: 700;\n  letter-spacing: 0.02em;\n}\n\n.dsh-gv-spacer {\n  flex: 1;\n}\n\n.dsh-gv-button {\n  display: inline-flex;\n  align-items: center;\n  gap: 4px;\n  padding: 4px 10px;\n  border: 0.5px solid var(--dsw-alias-border-l2);\n  border-radius: 6px;\n  background: transparent;\n  color: var(--dsw-alias-label-secondary);\n  cursor: pointer;\n  font: inherit;\n  font-size: 12px;\n  transition: background-color 120ms ease, color 120ms ease;\n}\n\n.dsh-gv-button:hover {\n  background: var(--dsw-alias-interactive-bg-hover);\n  color: var(--dsw-alias-label-primary);\n}\n\n.dsh-gv-button[data-active='true'] {\n  border-color: var(--dsh-gv-accent);\n  background: var(--dsw-alias-interactive-bg-hover-accent);\n  color: var(--dsh-gv-accent);\n  font-weight: 600;\n}\n\n.dsh-gv-button:focus-visible,\n.dsh-gv-splitter:focus-visible {\n  outline: 2px solid var(--dsh-gv-accent);\n  outline-offset: 2px;\n}\n\n.dsh-gv-body {\n  display: flex;\n  flex: 1 1 auto;\n  /* A definite height keeps flex children from collapsing (TB) or growing to\n     the SVG's intrinsic aspect height (LR/Graph); all three layouts share it. */\n  height: clamp(420px, 60vh, 760px);\n  min-height: 0;\n}\n\n.dsh-gv[data-layout='lr'] .dsh-gv-body {\n  flex-direction: row;\n}\n\n.dsh-gv[data-layout='tb'] .dsh-gv-body {\n  flex-direction: column;\n}\n\n.dsh-gv-editor-pane {\n  display: flex;\n  overflow: hidden;\n  flex-shrink: 0;\n  min-width: 0;\n}\n\n.dsh-gv[data-layout='tb'] .dsh-gv-editor-pane {\n  border-bottom: 0.5px solid var(--dsw-alias-border-l2);\n  min-height: 80px;\n}\n\n.dsh-gv[data-layout='lr'] .dsh-gv-editor-pane {\n  min-width: 150px;\n}\n\n.dsh-gv-graph {\n  display: flex;\n  flex: 1 1 0;\n  flex-direction: column;\n  min-width: 0;\n  min-height: 240px;\n  overflow: hidden;\n}\n\n.dsh-gv-splitter {\n  flex: 0 0 auto;\n  background: var(--dsw-alias-border-l2);\n  cursor: col-resize;\n  touch-action: none;\n}\n\n.dsh-gv[data-layout='lr'] .dsh-gv-splitter {\n  width: 3px;\n  cursor: col-resize;\n}\n\n.dsh-gv[data-layout='tb'] .dsh-gv-splitter {\n  height: 3px;\n  cursor: row-resize;\n}\n\n.dsh-gv-editor {\n  display: flex;\n  flex: 1;\n  flex-direction: column;\n  min-height: 0;\n  width: 100%;\n  background: var(--dsw-alias-bg-layer-1);\n}\n\n.dsh-gv-monaco {\n  flex: 1;\n  min-height: 0;\n  width: 100%;\n}\n\n.dsh-gv-editor-notice {\n  padding: 6px 10px;\n  color: var(--dsw-alias-label-tertiary);\n  font-size: 11px;\n}\n\n.dsh-gv-textarea {\n  flex: 1;\n  width: 100%;\n  min-height: 0;\n  padding: 10px 12px;\n  border: 0;\n  outline: none;\n  resize: none;\n  background: var(--dsw-alias-bg-layer-1);\n  color: var(--dsw-alias-label-primary);\n  font-family: var(--dsh-font-family-code, ui-monospace, SFMono-Regular, monospace);\n  font-size: 13px;\n  line-height: 1.5;\n  tab-size: 2;\n}\n\n.dsh-gv-status,\n.dsh-gv-empty {\n  display: flex;\n  flex: 1;\n  align-items: center;\n  justify-content: center;\n  gap: 10px;\n  padding: 32px;\n  color: var(--dsw-alias-label-tertiary);\n  font-size: 13px;\n}\n\n.dsh-gv-spinner {\n  display: inline-block;\n  width: 16px;\n  height: 16px;\n  border: 2px solid var(--dsh-gv-accent);\n  border-top-color: transparent;\n  border-radius: 50%;\n  animation: dsh-gv-spin 0.6s linear infinite;\n}\n\n@keyframes dsh-gv-spin {\n  to {\n    transform: rotate(360deg);\n  }\n}\n\n.dsh-gv-error {\n  display: flex;\n  flex: 1;\n  flex-direction: column;\n  align-items: flex-start;\n  gap: 8px;\n  padding: 14px 16px;\n  color: var(--dsw-alias-label-primary);\n  background: var(--dsw-alias-bg-layer-2);\n  font-size: 12px;\n}\n\n.dsh-gv-error-title {\n  color: var(--dsw-alias-label-error);\n  font-weight: 600;\n}\n\n.dsh-gv-error-body {\n  max-width: 100%;\n  overflow-wrap: anywhere;\n  color: var(--dsw-alias-label-secondary);\n  font-family: var(--dsh-font-family-code, ui-monospace, SFMono-Regular, monospace);\n  white-space: pre-wrap;\n}\n\n.dsh-gv-canvas {\n  position: relative;\n  display: block;\n  flex: 1;\n  min-height: 0;\n  padding: 0;\n  overflow: hidden;\n  background: var(--dsw-alias-bg-layer-1);\n  cursor: grab;\n  touch-action: none;\n}\n\n.dsh-gv-canvas:focus-visible {\n  outline: 2px solid var(--dsh-gv-accent);\n  outline-offset: -2px;\n}\n\n.dsh-gv-canvas-inner {\n  position: absolute;\n  top: 0;\n  left: 0;\n  /* Zoom is applied as layout size (not a CSS scale) so the SVG re-rasterizes\n     its vectors at the new size instead of upscaling a cached bitmap. */\n  transform-origin: 0 0;\n  user-select: none;\n}\n\n.dsh-gv-canvas-inner[data-dragging='true'],\n.dsh-gv-canvas:active {\n  cursor: grabbing;\n}\n\n.dsh-gv-canvas svg {\n  display: block;\n  width: 100%;\n  height: 100%;\n  max-width: 100%;\n  max-height: 100%;\n}\n\n.dsh-gv-zoomctl {\n  display: inline-flex;\n  align-items: center;\n  gap: 2px;\n  padding: 1px;\n  border: 0.5px solid var(--dsw-alias-border-l2);\n  border-radius: 7px;\n}\n\n.dsh-gv-zoomctl .dsh-gv-button {\n  border: 0;\n  padding: 3px 8px;\n}\n\n.dsh-gv-zoom-button {\n  font-variant-numeric: tabular-nums;\n  min-width: 26px;\n  justify-content: center;\n}\n\n.dsh-gv-zoom-value {\n  min-width: 48px;\n  justify-content: center;\n  font-variant-numeric: tabular-nums;\n}\n\n.dsh-gv-collapsed-note {\n  margin-left: 8px;\n  color: var(--dsw-alias-label-tertiary);\n  font-size: 12px;\n}\n\n.dsh-gv-height-handle {\n  flex: 0 0 auto;\n  height: 7px;\n  cursor: row-resize;\n  background: transparent;\n  touch-action: none;\n  transition: background-color 120ms ease;\n}\n\n.dsh-gv-height-handle:hover,\n.dsh-gv-height-handle:active {\n  background: var(--dsh-gv-accent);\n}\n\n.dsh-gv-height-handle:focus-visible {\n  outline: 2px solid var(--dsh-gv-accent);\n  outline-offset: -2px;\n}\n";
+var styles_default = "/* Host-theme-aware chrome for the Graphviz fence panel. All colors come from\n   DSH theme tokens so light, dark, and third-party palettes inherit correctly. */\n\n.dsh-gv {\n  --dsh-gv-accent: var(--dsw-alias-brand-primary-new-colorprimary-new-color, #3b82f6);\n  display: flex;\n  flex-direction: column;\n  overflow: hidden;\n  border: 0.5px solid var(--dsw-alias-border-l2);\n  border-radius: 12px;\n  background: var(--dsw-alias-bg-layer-1);\n  color: var(--dsw-alias-label-primary);\n  font-family: var(--dsh-font-family-text, system-ui, sans-serif);\n}\n\n.dsh-gv-toolbar {\n  display: flex;\n  flex: 0 0 auto;\n  align-items: center;\n  gap: 6px;\n  padding: 8px 12px;\n  border-bottom: 0.5px solid var(--dsw-alias-border-l2);\n  background: var(--dsw-alias-bg-layer-2);\n  font-size: 12px;\n  user-select: none;\n}\n\n.dsh-gv-brand {\n  color: var(--dsh-gv-accent);\n  font-size: 13px;\n  font-weight: 700;\n  letter-spacing: 0.02em;\n}\n\n.dsh-gv-spacer {\n  flex: 1;\n}\n\n.dsh-gv-button {\n  display: inline-flex;\n  align-items: center;\n  gap: 4px;\n  padding: 4px 10px;\n  border: 0.5px solid var(--dsw-alias-border-l2);\n  border-radius: 6px;\n  background: transparent;\n  color: var(--dsw-alias-label-secondary);\n  cursor: pointer;\n  font: inherit;\n  font-size: 12px;\n  transition: background-color 120ms ease, color 120ms ease;\n}\n\n.dsh-gv-button:hover {\n  background: var(--dsw-alias-interactive-bg-hover);\n  color: var(--dsw-alias-label-primary);\n}\n\n.dsh-gv-button[data-active='true'] {\n  border-color: var(--dsh-gv-accent);\n  background: var(--dsw-alias-interactive-bg-hover-accent);\n  color: var(--dsh-gv-accent);\n  font-weight: 600;\n}\n\n.dsh-gv-button:focus-visible,\n.dsh-gv-splitter:focus-visible {\n  outline: 2px solid var(--dsh-gv-accent);\n  outline-offset: 2px;\n}\n\n.dsh-gv-body {\n  display: flex;\n  flex: 1 1 auto;\n  /* A definite height keeps flex children from collapsing (TB) or growing to\n     the SVG's intrinsic aspect height (LR/Graph); all three layouts share it. */\n  height: clamp(420px, 60vh, 760px);\n  min-height: 0;\n}\n\n.dsh-gv[data-layout='lr'] .dsh-gv-body {\n  flex-direction: row;\n}\n\n.dsh-gv[data-layout='tb'] .dsh-gv-body {\n  flex-direction: column;\n}\n\n.dsh-gv-editor-pane {\n  display: flex;\n  overflow: hidden;\n  flex-shrink: 0;\n  min-width: 0;\n}\n\n.dsh-gv[data-layout='tb'] .dsh-gv-editor-pane {\n  border-bottom: 0.5px solid var(--dsw-alias-border-l2);\n  min-height: 80px;\n}\n\n.dsh-gv[data-layout='lr'] .dsh-gv-editor-pane {\n  min-width: 150px;\n}\n\n.dsh-gv-graph {\n  display: flex;\n  flex: 1 1 0;\n  flex-direction: column;\n  min-width: 0;\n  min-height: 240px;\n  overflow: hidden;\n}\n\n.dsh-gv-splitter {\n  flex: 0 0 auto;\n  background: var(--dsw-alias-border-l2);\n  cursor: col-resize;\n  touch-action: none;\n}\n\n.dsh-gv[data-layout='lr'] .dsh-gv-splitter {\n  width: 3px;\n  cursor: col-resize;\n}\n\n.dsh-gv[data-layout='tb'] .dsh-gv-splitter {\n  height: 3px;\n  cursor: row-resize;\n}\n\n.dsh-gv-editor {\n  display: flex;\n  flex: 1;\n  flex-direction: column;\n  min-height: 0;\n  width: 100%;\n  background: var(--dsw-alias-bg-layer-1);\n}\n\n.dsh-gv-monaco {\n  flex: 1;\n  min-height: 0;\n  width: 100%;\n}\n\n.dsh-gv-editor-notice {\n  padding: 6px 10px;\n  color: var(--dsw-alias-label-tertiary);\n  font-size: 11px;\n}\n\n.dsh-gv-textarea {\n  flex: 1;\n  width: 100%;\n  min-height: 0;\n  padding: 10px 12px;\n  border: 0;\n  outline: none;\n  resize: none;\n  background: var(--dsw-alias-bg-layer-1);\n  color: var(--dsw-alias-label-primary);\n  font-family: var(--dsh-font-family-code, ui-monospace, SFMono-Regular, monospace);\n  font-size: 13px;\n  line-height: 1.5;\n  tab-size: 2;\n}\n\n.dsh-gv-status,\n.dsh-gv-empty {\n  display: flex;\n  flex: 1;\n  align-items: center;\n  justify-content: center;\n  gap: 10px;\n  padding: 32px;\n  color: var(--dsw-alias-label-tertiary);\n  font-size: 13px;\n}\n\n.dsh-gv-spinner {\n  display: inline-block;\n  width: 16px;\n  height: 16px;\n  border: 2px solid var(--dsh-gv-accent);\n  border-top-color: transparent;\n  border-radius: 50%;\n  animation: dsh-gv-spin 0.6s linear infinite;\n}\n\n@keyframes dsh-gv-spin {\n  to {\n    transform: rotate(360deg);\n  }\n}\n\n.dsh-gv-error {\n  display: flex;\n  flex: 1;\n  flex-direction: column;\n  align-items: flex-start;\n  gap: 8px;\n  padding: 14px 16px;\n  color: var(--dsw-alias-label-primary);\n  background: var(--dsw-alias-bg-layer-2);\n  font-size: 12px;\n}\n\n.dsh-gv-error-title {\n  color: var(--dsw-alias-label-error);\n  font-weight: 600;\n}\n\n.dsh-gv-error-body {\n  max-width: 100%;\n  overflow-wrap: anywhere;\n  color: var(--dsw-alias-label-secondary);\n  font-family: var(--dsh-font-family-code, ui-monospace, SFMono-Regular, monospace);\n  white-space: pre-wrap;\n}\n\n.dsh-gv-canvas {\n  position: relative;\n  display: block;\n  flex: 1;\n  min-height: 0;\n  padding: 0;\n  overflow: hidden;\n  background: var(--dsw-alias-bg-layer-1);\n  cursor: grab;\n  touch-action: none;\n}\n\n.dsh-gv-canvas:focus-visible {\n  outline: 2px solid var(--dsh-gv-accent);\n  outline-offset: -2px;\n}\n\n.dsh-gv-canvas-inner {\n  position: absolute;\n  top: 0;\n  left: 0;\n  /* Zoom is applied as layout size (not a CSS scale) so the SVG re-rasterizes\n     its vectors at the new size instead of upscaling a cached bitmap. */\n  transform-origin: 0 0;\n  user-select: none;\n}\n\n.dsh-gv-canvas-inner[data-dragging='true'],\n.dsh-gv-canvas:active {\n  cursor: grabbing;\n}\n\n.dsh-gv-canvas svg {\n  display: block;\n  width: 100%;\n  height: 100%;\n  max-width: 100%;\n  max-height: 100%;\n}\n\n.dsh-gv-zoomctl {\n  display: inline-flex;\n  align-items: center;\n  gap: 2px;\n  padding: 1px;\n  border: 0.5px solid var(--dsw-alias-border-l2);\n  border-radius: 7px;\n}\n\n.dsh-gv-zoomctl .dsh-gv-button {\n  border: 0;\n  padding: 3px 8px;\n}\n\n.dsh-gv-zoom-button {\n  font-variant-numeric: tabular-nums;\n  min-width: 26px;\n  justify-content: center;\n}\n\n.dsh-gv-zoom-value {\n  min-width: 48px;\n  justify-content: center;\n  font-variant-numeric: tabular-nums;\n}\n\n.dsh-gv-collapsed-note {\n  margin-left: 8px;\n  color: var(--dsw-alias-label-tertiary);\n  font-size: 12px;\n}\n\n.dsh-gv-height-handle {\n  flex: 0 0 auto;\n  height: 7px;\n  cursor: row-resize;\n  background: transparent;\n  touch-action: none;\n  transition: background-color 120ms ease;\n}\n\n.dsh-gv-height-handle:hover,\n.dsh-gv-height-handle:active {\n  background: var(--dsh-gv-accent);\n}\n\n.dsh-gv-height-handle:focus-visible {\n  outline: 2px solid var(--dsh-gv-accent);\n  outline-offset: -2px;\n}\n\n.dsh-gv[data-locked='true'] .dsh-gv-splitter {\n  cursor: default;\n}\n\n.dsh-gv-backdrop {\n  position: fixed;\n  inset: 0;\n  z-index: 900;\n  background: rgba(0, 0, 0, 0.45);\n}\n\n.dsh-gv[data-maximized='true'] {\n  position: fixed;\n  inset: 4vh 4vw;\n  z-index: 1000;\n  max-height: none;\n  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);\n}\n";
 
 // src/shared/contract.ts
 var PACKAGE_ID = "@limix/dsh-graphviz";
@@ -91,7 +91,11 @@ var en = {
   "toolbar.collapse": "Collapse",
   "toolbar.expand": "Expand",
   "collapsed.note": "diagram hidden",
-  "height.label": "Resize panel height"
+  "height.label": "Resize panel height",
+  "toolbar.lock": "Lock size",
+  "toolbar.unlock": "Unlock size",
+  "toolbar.maximize": "Maximize view",
+  "toolbar.restore": "Restore view"
 };
 var zh = {
   "toolbar.label": "DOT",
@@ -115,7 +119,11 @@ var zh = {
   "toolbar.collapse": "\u6298\u53E0",
   "toolbar.expand": "\u5C55\u5F00",
   "collapsed.note": "\u56FE\u5F62\u5DF2\u6298\u53E0",
-  "height.label": "\u8C03\u6574\u9762\u677F\u9AD8\u5EA6"
+  "height.label": "\u8C03\u6574\u9762\u677F\u9AD8\u5EA6",
+  "toolbar.lock": "\u9501\u5B9A\u5C3A\u5BF8",
+  "toolbar.unlock": "\u89E3\u9501\u5C3A\u5BF8",
+  "toolbar.maximize": "\u653E\u5927\u67E5\u770B",
+  "toolbar.restore": "\u9000\u51FA\u653E\u5927"
 };
 var dictionaries = { en, zh };
 function translate(t, key, locale = "en") {
@@ -690,6 +698,8 @@ function GraphvizPanel({ props }) {
   const [layout, setLayout] = (0, import_react2.useState)("tb");
   const [split, setSplit] = (0, import_react2.useState)(null);
   const [collapsed, setCollapsed] = (0, import_react2.useState)(false);
+  const [locked, setLocked] = (0, import_react2.useState)(false);
+  const [maximized, setMaximized] = (0, import_react2.useState)(false);
   const [state, setState] = (0, import_react2.useState)(code.trim() === "" ? { kind: "idle" } : { kind: "loading", engineReady: false });
   const [retryToken, setRetryToken] = (0, import_react2.useState)(0);
   const [idPrefix] = (0, import_react2.useState)(nextIdPrefix);
@@ -821,7 +831,15 @@ function GraphvizPanel({ props }) {
     setContainerWidth(container.getBoundingClientRect().width);
     return () => observer.disconnect();
   }, []);
-  const showEditor = layout !== "graph";
+  (0, import_react2.useEffect)(() => {
+    if (!maximized) return;
+    const onKey = (event) => {
+      if (event.key === "Escape") setMaximized(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [maximized]);
+  const showEditor = layout !== "graph" && !maximized;
   const clamp = (value) => {
     if (layout === "lr") return Math.min(MAX_LR_PERCENT, Math.max(MIN_LR_PERCENT, value));
     const height = containerRef.current?.getBoundingClientRect().height ?? 500;
@@ -960,6 +978,10 @@ function GraphvizPanel({ props }) {
     return Math.round(Math.min(MAX_BODY_HEIGHT, Math.max(MIN_BODY_HEIGHT, graphHeight + editorHeight)));
   }, [viewBox, containerWidth, layout, split, showEditor]);
   const resolvedBodyHeight = bodyHeight ?? (autoBodyHeight > 0 ? autoBodyHeight : null);
+  const toggleMaximize = () => {
+    setMaximized((value) => !value);
+    resetTransform();
+  };
   const beginHeightResize = (event) => {
     if (event.button !== 0) return;
     const handle = event.currentTarget;
@@ -1071,67 +1093,106 @@ function GraphvizPanel({ props }) {
         return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { className: "dsh-gv-empty", children: text("empty") });
     }
   })();
-  return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
-    "div",
-    {
-      ref: containerRef,
-      className: "dsh-gv",
-      "data-layout": layout,
-      "data-collapsed": collapsed,
-      "data-testid": "dsh-gv",
-      children: [
-        /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "dsh-gv-toolbar", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "dsh-gv-brand", children: text("toolbar.label") }),
-          collapsed ? /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "dsh-gv-collapsed-note", children: text("collapsed.note") }) : null,
-          /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "dsh-gv-spacer" }),
-          collapsed ? null : /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(import_jsx_runtime2.Fragment, { children: [
-            ["tb", "lr", "graph"].map((mode) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
-              "button",
-              {
-                type: "button",
-                className: "dsh-gv-button",
-                "data-active": layout === mode,
-                "aria-pressed": layout === mode,
-                onClick: () => {
-                  setLayout(mode);
-                  setSplit(null);
+  return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(import_jsx_runtime2.Fragment, { children: [
+    maximized ? /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+      "div",
+      {
+        className: "dsh-gv-backdrop",
+        "aria-hidden": "true",
+        onClick: toggleMaximize
+      }
+    ) : null,
+    /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
+      "div",
+      {
+        ref: containerRef,
+        className: "dsh-gv",
+        "data-layout": layout,
+        "data-collapsed": collapsed,
+        "data-locked": locked,
+        "data-maximized": maximized,
+        role: maximized ? "dialog" : void 0,
+        "aria-modal": maximized ? true : void 0,
+        "aria-label": maximized ? text("graph.aria") : void 0,
+        "data-testid": "dsh-gv",
+        children: [
+          /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "dsh-gv-toolbar", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "dsh-gv-brand", children: text("toolbar.label") }),
+            collapsed ? /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "dsh-gv-collapsed-note", children: text("collapsed.note") }) : null,
+            /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "dsh-gv-spacer" }),
+            collapsed ? null : /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(import_jsx_runtime2.Fragment, { children: [
+              ["tb", "lr", "graph"].map((mode) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+                "button",
+                {
+                  type: "button",
+                  className: "dsh-gv-button",
+                  "data-active": layout === mode,
+                  "aria-pressed": layout === mode,
+                  onClick: () => {
+                    setLayout(mode);
+                    setSplit(null);
+                  },
+                  children: text(`toolbar.${mode}`)
                 },
-                children: text(`toolbar.${mode}`)
-              },
-              mode
-            )),
-            /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "dsh-gv-zoomctl", role: "group", "aria-label": text("zoom.aria"), children: [
+                mode
+              )),
+              /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "dsh-gv-zoomctl", role: "group", "aria-label": text("zoom.aria"), children: [
+                /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+                  "button",
+                  {
+                    type: "button",
+                    className: "dsh-gv-button dsh-gv-zoom-button",
+                    "aria-label": text("zoom.out"),
+                    title: text("zoom.out"),
+                    onClick: () => zoomBy(1 / ZOOM_STEP),
+                    children: "\u2212"
+                  }
+                ),
+                /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+                  "button",
+                  {
+                    type: "button",
+                    className: "dsh-gv-button dsh-gv-zoom-value",
+                    "aria-label": text("zoom.reset"),
+                    title: text("zoom.reset"),
+                    onClick: resetTransform,
+                    children: `${Math.round(zoom * 100)}%`
+                  }
+                ),
+                /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+                  "button",
+                  {
+                    type: "button",
+                    className: "dsh-gv-button dsh-gv-zoom-button",
+                    "aria-label": text("zoom.in"),
+                    title: text("zoom.in"),
+                    onClick: () => zoomBy(ZOOM_STEP),
+                    children: "+"
+                  }
+                ),
+                /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+                  "button",
+                  {
+                    type: "button",
+                    className: "dsh-gv-button",
+                    "aria-label": text("zoom.reset"),
+                    title: text("zoom.reset"),
+                    onClick: resetTransform,
+                    children: "\u21BA"
+                  }
+                )
+              ] }),
               /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
                 "button",
                 {
                   type: "button",
-                  className: "dsh-gv-button dsh-gv-zoom-button",
-                  "aria-label": text("zoom.out"),
-                  title: text("zoom.out"),
-                  onClick: () => zoomBy(1 / ZOOM_STEP),
-                  children: "\u2212"
-                }
-              ),
-              /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
-                "button",
-                {
-                  type: "button",
-                  className: "dsh-gv-button dsh-gv-zoom-value",
-                  "aria-label": text("zoom.reset"),
-                  title: text("zoom.reset"),
-                  onClick: resetTransform,
-                  children: `${Math.round(zoom * 100)}%`
-                }
-              ),
-              /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
-                "button",
-                {
-                  type: "button",
-                  className: "dsh-gv-button dsh-gv-zoom-button",
-                  "aria-label": text("zoom.in"),
-                  title: text("zoom.in"),
-                  onClick: () => zoomBy(ZOOM_STEP),
-                  children: "+"
+                  className: "dsh-gv-button",
+                  "data-active": locked,
+                  "aria-pressed": locked,
+                  "aria-label": text(locked ? "toolbar.unlock" : "toolbar.lock"),
+                  title: text(locked ? "toolbar.unlock" : "toolbar.lock"),
+                  onClick: () => setLocked((value) => !value),
+                  children: locked ? "\u{1F512}" : "\u{1F513}"
                 }
               ),
               /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
@@ -1139,82 +1200,83 @@ function GraphvizPanel({ props }) {
                 {
                   type: "button",
                   className: "dsh-gv-button",
-                  "aria-label": text("zoom.reset"),
-                  title: text("zoom.reset"),
-                  onClick: resetTransform,
-                  children: "\u21BA"
+                  "aria-pressed": maximized,
+                  "aria-label": text(maximized ? "toolbar.restore" : "toolbar.maximize"),
+                  title: text(maximized ? "toolbar.restore" : "toolbar.maximize"),
+                  onClick: toggleMaximize,
+                  children: text(maximized ? "toolbar.restore" : "toolbar.maximize")
                 }
               )
-            ] })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+              "button",
+              {
+                type: "button",
+                className: "dsh-gv-button",
+                "aria-expanded": !collapsed,
+                onClick: () => setCollapsed((value) => !value),
+                children: text(collapsed ? "toolbar.expand" : "toolbar.collapse")
+              }
+            )
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
-            "button",
+          /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
+            "div",
             {
-              type: "button",
-              className: "dsh-gv-button",
-              "aria-expanded": !collapsed,
-              onClick: () => setCollapsed((value) => !value),
-              children: text(collapsed ? "toolbar.expand" : "toolbar.collapse")
+              className: "dsh-gv-body",
+              style: collapsed ? { display: "none" } : maximized ? { flex: "1 1 auto", height: "auto", minHeight: 0 } : resolvedBodyHeight === null ? void 0 : { height: `${resolvedBodyHeight}px` },
+              children: [
+                /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+                  "div",
+                  {
+                    className: "dsh-gv-editor-pane",
+                    style: showEditor ? editorStyle() : { display: "none" },
+                    children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+                      MonacoEditor,
+                      {
+                        value: source,
+                        onChange: setSource,
+                        ariaLabel: text("editor.aria"),
+                        t
+                      }
+                    )
+                  }
+                ),
+                showEditor ? locked ? /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { className: "dsh-gv-splitter", "aria-hidden": "true" }) : /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+                  "div",
+                  {
+                    className: "dsh-gv-splitter",
+                    role: "separator",
+                    tabIndex: 0,
+                    "aria-orientation": layout === "lr" ? "vertical" : "horizontal",
+                    "aria-label": text("splitter.label"),
+                    onPointerDown: beginResize,
+                    onKeyDown: resizeKey
+                  }
+                ) : null,
+                /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { className: "dsh-gv-graph", children: pane })
+              ]
+            }
+          ),
+          collapsed || locked || maximized ? null : /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+            "div",
+            {
+              className: "dsh-gv-height-handle",
+              role: "separator",
+              "aria-orientation": "horizontal",
+              "aria-label": text("height.label"),
+              tabIndex: 0,
+              onPointerDown: beginHeightResize,
+              onPointerMove: moveHeightResize,
+              onPointerUp: endHeightResize,
+              onPointerCancel: endHeightResize,
+              onDoubleClick: () => setBodyHeight(null),
+              onKeyDown: heightKey
             }
           )
-        ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
-          "div",
-          {
-            className: "dsh-gv-body",
-            style: collapsed ? { display: "none" } : resolvedBodyHeight === null ? void 0 : { height: `${resolvedBodyHeight}px` },
-            children: [
-              /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
-                "div",
-                {
-                  className: "dsh-gv-editor-pane",
-                  style: showEditor ? editorStyle() : { display: "none" },
-                  children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
-                    MonacoEditor,
-                    {
-                      value: source,
-                      onChange: setSource,
-                      ariaLabel: text("editor.aria"),
-                      t
-                    }
-                  )
-                }
-              ),
-              showEditor ? /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
-                "div",
-                {
-                  className: "dsh-gv-splitter",
-                  role: "separator",
-                  tabIndex: 0,
-                  "aria-orientation": layout === "lr" ? "vertical" : "horizontal",
-                  "aria-label": text("splitter.label"),
-                  onPointerDown: beginResize,
-                  onKeyDown: resizeKey
-                }
-              ) : null,
-              /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { className: "dsh-gv-graph", children: pane })
-            ]
-          }
-        ),
-        collapsed ? null : /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
-          "div",
-          {
-            className: "dsh-gv-height-handle",
-            role: "separator",
-            "aria-orientation": "horizontal",
-            "aria-label": text("height.label"),
-            tabIndex: 0,
-            onPointerDown: beginHeightResize,
-            onPointerMove: moveHeightResize,
-            onPointerUp: endHeightResize,
-            onPointerCancel: endHeightResize,
-            onDoubleClick: () => setBodyHeight(null),
-            onKeyDown: heightKey
-          }
-        )
-      ]
-    }
-  );
+        ]
+      }
+    )
+  ] });
 }
 
 // src/client/index.tsx
