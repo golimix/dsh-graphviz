@@ -27,7 +27,7 @@ __export(index_exports, {
 module.exports = __toCommonJS(index_exports);
 
 // src/client/styles.css
-var styles_default = "/* Host-theme-aware chrome for the Graphviz fence panel. All colors come from\n   DSH theme tokens so light, dark, and third-party palettes inherit correctly. */\n\n.dsh-gv {\n  --dsh-gv-accent: var(--dsw-alias-brand-primary-new-colorprimary-new-color, #3b82f6);\n  display: flex;\n  flex-direction: column;\n  overflow: hidden;\n  border: 0.5px solid var(--dsw-alias-border-l2);\n  border-radius: 12px;\n  background: var(--dsw-alias-bg-layer-1);\n  color: var(--dsw-alias-label-primary);\n  font-family: var(--dsh-font-family-text, system-ui, sans-serif);\n}\n\n.dsh-gv-toolbar {\n  display: flex;\n  flex: 0 0 auto;\n  align-items: center;\n  gap: 6px;\n  padding: 8px 12px;\n  border-bottom: 0.5px solid var(--dsw-alias-border-l2);\n  background: var(--dsw-alias-bg-layer-2);\n  font-size: 12px;\n  user-select: none;\n}\n\n.dsh-gv-brand {\n  color: var(--dsh-gv-accent);\n  font-size: 13px;\n  font-weight: 700;\n  letter-spacing: 0.02em;\n}\n\n.dsh-gv-spacer {\n  flex: 1;\n}\n\n.dsh-gv-button {\n  display: inline-flex;\n  align-items: center;\n  gap: 4px;\n  padding: 4px 10px;\n  border: 0.5px solid var(--dsw-alias-border-l2);\n  border-radius: 6px;\n  background: transparent;\n  color: var(--dsw-alias-label-secondary);\n  cursor: pointer;\n  font: inherit;\n  font-size: 12px;\n  transition: background-color 120ms ease, color 120ms ease;\n}\n\n.dsh-gv-button:hover {\n  background: var(--dsw-alias-interactive-bg-hover);\n  color: var(--dsw-alias-label-primary);\n}\n\n.dsh-gv-button[data-active='true'] {\n  border-color: var(--dsh-gv-accent);\n  background: var(--dsw-alias-interactive-bg-hover-accent);\n  color: var(--dsh-gv-accent);\n  font-weight: 600;\n}\n\n.dsh-gv-button:focus-visible,\n.dsh-gv-splitter:focus-visible {\n  outline: 2px solid var(--dsh-gv-accent);\n  outline-offset: 2px;\n}\n\n.dsh-gv-body {\n  display: flex;\n  flex: 1 1 auto;\n  /* A definite height keeps flex children from collapsing (TB) or growing to\n     the SVG's intrinsic aspect height (LR/Graph); all three layouts share it. */\n  height: clamp(420px, 60vh, 760px);\n  min-height: 0;\n}\n\n.dsh-gv[data-layout='lr'] .dsh-gv-body {\n  flex-direction: row;\n}\n\n.dsh-gv[data-layout='tb'] .dsh-gv-body {\n  flex-direction: column;\n}\n\n.dsh-gv-editor-pane {\n  display: flex;\n  overflow: hidden;\n  flex-shrink: 0;\n  min-width: 0;\n}\n\n.dsh-gv[data-layout='tb'] .dsh-gv-editor-pane {\n  border-bottom: 0.5px solid var(--dsw-alias-border-l2);\n  min-height: 80px;\n}\n\n.dsh-gv[data-layout='lr'] .dsh-gv-editor-pane {\n  min-width: 150px;\n}\n\n.dsh-gv-graph {\n  display: flex;\n  flex: 1 1 0;\n  flex-direction: column;\n  min-width: 0;\n  min-height: 240px;\n  overflow: hidden;\n}\n\n.dsh-gv-splitter {\n  flex: 0 0 auto;\n  background: var(--dsw-alias-border-l2);\n  cursor: col-resize;\n  touch-action: none;\n}\n\n.dsh-gv[data-layout='lr'] .dsh-gv-splitter {\n  width: 3px;\n  cursor: col-resize;\n}\n\n.dsh-gv[data-layout='tb'] .dsh-gv-splitter {\n  height: 3px;\n  cursor: row-resize;\n}\n\n.dsh-gv-editor {\n  display: flex;\n  flex: 1;\n  flex-direction: column;\n  min-height: 0;\n  width: 100%;\n  background: var(--dsw-alias-bg-layer-1);\n}\n\n.dsh-gv-monaco {\n  flex: 1;\n  min-height: 0;\n  width: 100%;\n}\n\n.dsh-gv-editor-notice {\n  padding: 6px 10px;\n  color: var(--dsw-alias-label-tertiary);\n  font-size: 11px;\n}\n\n.dsh-gv-textarea {\n  flex: 1;\n  width: 100%;\n  min-height: 0;\n  padding: 10px 12px;\n  border: 0;\n  outline: none;\n  resize: none;\n  background: var(--dsw-alias-bg-layer-1);\n  color: var(--dsw-alias-label-primary);\n  font-family: var(--dsh-font-family-code, ui-monospace, SFMono-Regular, monospace);\n  font-size: 13px;\n  line-height: 1.5;\n  tab-size: 2;\n}\n\n.dsh-gv-status,\n.dsh-gv-empty {\n  display: flex;\n  flex: 1;\n  align-items: center;\n  justify-content: center;\n  gap: 10px;\n  padding: 32px;\n  color: var(--dsw-alias-label-tertiary);\n  font-size: 13px;\n}\n\n.dsh-gv-spinner {\n  display: inline-block;\n  width: 16px;\n  height: 16px;\n  border: 2px solid var(--dsh-gv-accent);\n  border-top-color: transparent;\n  border-radius: 50%;\n  animation: dsh-gv-spin 0.6s linear infinite;\n}\n\n@keyframes dsh-gv-spin {\n  to {\n    transform: rotate(360deg);\n  }\n}\n\n.dsh-gv-error {\n  display: flex;\n  flex: 1;\n  flex-direction: column;\n  align-items: flex-start;\n  gap: 8px;\n  padding: 14px 16px;\n  color: var(--dsw-alias-label-primary);\n  background: var(--dsw-alias-bg-layer-2);\n  font-size: 12px;\n}\n\n.dsh-gv-error-title {\n  color: var(--dsw-alias-label-error);\n  font-weight: 600;\n}\n\n.dsh-gv-error-body {\n  max-width: 100%;\n  overflow-wrap: anywhere;\n  color: var(--dsw-alias-label-secondary);\n  font-family: var(--dsh-font-family-code, ui-monospace, SFMono-Regular, monospace);\n  white-space: pre-wrap;\n}\n\n.dsh-gv-canvas {\n  position: relative;\n  display: block;\n  flex: 1;\n  min-height: 0;\n  padding: 0;\n  overflow: hidden;\n  background: var(--dsw-alias-bg-layer-1);\n  cursor: grab;\n  touch-action: none;\n}\n\n.dsh-gv-canvas:focus-visible {\n  outline: 2px solid var(--dsh-gv-accent);\n  outline-offset: -2px;\n}\n\n.dsh-gv-canvas-inner {\n  position: absolute;\n  top: 0;\n  left: 0;\n  /* Zoom is applied as layout size (not a CSS scale) so the SVG re-rasterizes\n     its vectors at the new size instead of upscaling a cached bitmap. */\n  transform-origin: 0 0;\n  user-select: none;\n}\n\n.dsh-gv-canvas-inner[data-dragging='true'],\n.dsh-gv-canvas:active {\n  cursor: grabbing;\n}\n\n.dsh-gv-canvas svg {\n  display: block;\n  width: 100%;\n  height: 100%;\n  max-width: 100%;\n  max-height: 100%;\n}\n\n.dsh-gv-zoomctl {\n  display: inline-flex;\n  align-items: center;\n  gap: 2px;\n  padding: 1px;\n  border: 0.5px solid var(--dsw-alias-border-l2);\n  border-radius: 7px;\n}\n\n.dsh-gv-zoomctl .dsh-gv-button {\n  border: 0;\n  padding: 3px 8px;\n}\n\n.dsh-gv-zoom-button {\n  font-variant-numeric: tabular-nums;\n  min-width: 26px;\n  justify-content: center;\n}\n\n.dsh-gv-zoom-value {\n  min-width: 48px;\n  justify-content: center;\n  font-variant-numeric: tabular-nums;\n}\n\n.dsh-gv-collapsed-note {\n  margin-left: 8px;\n  color: var(--dsw-alias-label-tertiary);\n  font-size: 12px;\n}\n\n.dsh-gv-height-handle {\n  flex: 0 0 auto;\n  height: 7px;\n  cursor: row-resize;\n  background: transparent;\n  touch-action: none;\n  transition: background-color 120ms ease;\n}\n\n.dsh-gv-height-handle:hover,\n.dsh-gv-height-handle:active {\n  background: var(--dsh-gv-accent);\n}\n\n.dsh-gv-height-handle:focus-visible {\n  outline: 2px solid var(--dsh-gv-accent);\n  outline-offset: -2px;\n}\n\n.dsh-gv[data-locked='true'] .dsh-gv-splitter {\n  cursor: default;\n}\n\n.dsh-gv-backdrop {\n  position: fixed;\n  inset: 0;\n  z-index: 900;\n  background: rgba(0, 0, 0, 0.45);\n}\n\n.dsh-gv[data-maximized='true'] {\n  position: fixed;\n  inset: 4vh 4vw;\n  z-index: 1000;\n  max-height: none;\n  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);\n}\n";
+var styles_default = "/* Host-theme-aware chrome for the Graphviz fence panel. All colors come from\n   DSH theme tokens so light, dark, and third-party palettes inherit correctly. */\n\n.dsh-gv {\n  --dsh-gv-accent: var(--dsw-alias-brand-primary-new-colorprimary-new-color, #3b82f6);\n  display: flex;\n  flex-direction: column;\n  overflow: hidden;\n  border: 0.5px solid var(--dsw-alias-border-l2);\n  border-radius: 12px;\n  background: var(--dsw-alias-bg-layer-1);\n  color: var(--dsw-alias-label-primary);\n  font-family: var(--dsh-font-family-text, system-ui, sans-serif);\n}\n\n.dsh-gv-toolbar {\n  display: flex;\n  flex: 0 0 auto;\n  align-items: center;\n  gap: 6px;\n  padding: 8px 12px;\n  border-bottom: 0.5px solid var(--dsw-alias-border-l2);\n  background: var(--dsw-alias-bg-layer-2);\n  font-size: 12px;\n  user-select: none;\n}\n\n.dsh-gv-brand {\n  color: var(--dsh-gv-accent);\n  font-size: 13px;\n  font-weight: 700;\n  letter-spacing: 0.02em;\n}\n\n.dsh-gv-spacer {\n  flex: 1;\n}\n\n.dsh-gv-button {\n  display: inline-flex;\n  align-items: center;\n  gap: 4px;\n  padding: 4px 10px;\n  border: 0.5px solid var(--dsw-alias-border-l2);\n  border-radius: 6px;\n  background: transparent;\n  color: var(--dsw-alias-label-secondary);\n  cursor: pointer;\n  font: inherit;\n  font-size: 12px;\n  transition: background-color 120ms ease, color 120ms ease;\n}\n\n.dsh-gv-button:hover {\n  background: var(--dsw-alias-interactive-bg-hover);\n  color: var(--dsw-alias-label-primary);\n}\n\n.dsh-gv-button[data-active='true'] {\n  border-color: var(--dsh-gv-accent);\n  background: var(--dsw-alias-interactive-bg-hover-accent);\n  color: var(--dsh-gv-accent);\n  font-weight: 600;\n}\n\n.dsh-gv-button:focus-visible,\n.dsh-gv-splitter:focus-visible {\n  outline: 2px solid var(--dsh-gv-accent);\n  outline-offset: 2px;\n}\n\n.dsh-gv-body {\n  display: flex;\n  flex: 1 1 auto;\n  /* A definite height keeps flex children from collapsing (TB) or growing to\n     the SVG's intrinsic aspect height (LR/Graph); all three layouts share it. */\n  height: clamp(420px, 60vh, 760px);\n  min-height: 0;\n}\n\n.dsh-gv[data-layout='lr'] .dsh-gv-body {\n  flex-direction: row;\n}\n\n.dsh-gv[data-layout='tb'] .dsh-gv-body {\n  flex-direction: column;\n}\n\n.dsh-gv-editor-pane {\n  display: flex;\n  overflow: hidden;\n  flex-shrink: 0;\n  min-width: 0;\n}\n\n.dsh-gv[data-layout='tb'] .dsh-gv-editor-pane {\n  border-bottom: 0.5px solid var(--dsw-alias-border-l2);\n  min-height: 80px;\n}\n\n.dsh-gv[data-layout='lr'] .dsh-gv-editor-pane {\n  min-width: 150px;\n}\n\n.dsh-gv-graph {\n  display: flex;\n  flex: 1 1 0;\n  flex-direction: column;\n  min-width: 0;\n  min-height: 240px;\n  overflow: hidden;\n}\n\n.dsh-gv-splitter {\n  flex: 0 0 auto;\n  background: var(--dsw-alias-border-l2);\n  cursor: col-resize;\n  touch-action: none;\n}\n\n.dsh-gv[data-layout='lr'] .dsh-gv-splitter {\n  width: 3px;\n  cursor: col-resize;\n}\n\n.dsh-gv[data-layout='tb'] .dsh-gv-splitter {\n  height: 3px;\n  cursor: row-resize;\n}\n\n.dsh-gv-editor {\n  display: flex;\n  flex: 1;\n  flex-direction: column;\n  min-height: 0;\n  width: 100%;\n  background: var(--dsw-alias-bg-layer-1);\n}\n\n.dsh-gv-monaco {\n  flex: 1;\n  min-height: 0;\n  width: 100%;\n}\n\n.dsh-gv-editor-notice {\n  padding: 6px 10px;\n  color: var(--dsw-alias-label-tertiary);\n  font-size: 11px;\n}\n\n.dsh-gv-textarea {\n  flex: 1;\n  width: 100%;\n  min-height: 0;\n  padding: 10px 12px;\n  border: 0;\n  outline: none;\n  resize: none;\n  background: var(--dsw-alias-bg-layer-1);\n  color: var(--dsw-alias-label-primary);\n  font-family: var(--dsh-font-family-code, ui-monospace, SFMono-Regular, monospace);\n  font-size: 13px;\n  line-height: 1.5;\n  tab-size: 2;\n}\n\n.dsh-gv-status,\n.dsh-gv-empty {\n  display: flex;\n  flex: 1;\n  align-items: center;\n  justify-content: center;\n  gap: 10px;\n  padding: 32px;\n  color: var(--dsw-alias-label-tertiary);\n  font-size: 13px;\n}\n\n.dsh-gv-spinner {\n  display: inline-block;\n  width: 16px;\n  height: 16px;\n  border: 2px solid var(--dsh-gv-accent);\n  border-top-color: transparent;\n  border-radius: 50%;\n  animation: dsh-gv-spin 0.6s linear infinite;\n}\n\n@keyframes dsh-gv-spin {\n  to {\n    transform: rotate(360deg);\n  }\n}\n\n.dsh-gv-error {\n  display: flex;\n  flex: 1;\n  flex-direction: column;\n  align-items: flex-start;\n  gap: 8px;\n  padding: 14px 16px;\n  color: var(--dsw-alias-label-primary);\n  background: var(--dsw-alias-bg-layer-2);\n  font-size: 12px;\n}\n\n.dsh-gv-error-title {\n  color: var(--dsw-alias-label-error);\n  font-weight: 600;\n}\n\n.dsh-gv-error-body {\n  max-width: 100%;\n  overflow-wrap: anywhere;\n  color: var(--dsw-alias-label-secondary);\n  font-family: var(--dsh-font-family-code, ui-monospace, SFMono-Regular, monospace);\n  white-space: pre-wrap;\n}\n\n.dsh-gv-canvas {\n  position: relative;\n  display: block;\n  flex: 1;\n  min-height: 0;\n  padding: 0;\n  overflow: hidden;\n  background: var(--dsw-alias-bg-layer-1);\n  cursor: grab;\n  touch-action: none;\n}\n\n.dsh-gv-canvas:focus-visible {\n  outline: 2px solid var(--dsh-gv-accent);\n  outline-offset: -2px;\n}\n\n.dsh-gv-canvas-inner {\n  position: absolute;\n  top: 0;\n  left: 0;\n  /* Zoom is applied as layout size (not a CSS scale) so the SVG re-rasterizes\n     its vectors at the new size instead of upscaling a cached bitmap. */\n  transform-origin: 0 0;\n  user-select: none;\n}\n\n.dsh-gv-canvas-inner[data-dragging='true'],\n.dsh-gv-canvas:active {\n  cursor: grabbing;\n}\n\n.dsh-gv-canvas svg {\n  display: block;\n  width: 100%;\n  height: 100%;\n  max-width: 100%;\n  max-height: 100%;\n}\n\n.dsh-gv-zoomctl {\n  display: inline-flex;\n  align-items: center;\n  gap: 2px;\n  padding: 1px;\n  border: 0.5px solid var(--dsw-alias-border-l2);\n  border-radius: 7px;\n}\n\n.dsh-gv-zoomctl .dsh-gv-button {\n  border: 0;\n  padding: 3px 8px;\n}\n\n.dsh-gv-zoom-button {\n  font-variant-numeric: tabular-nums;\n  min-width: 26px;\n  justify-content: center;\n}\n\n.dsh-gv-zoom-value {\n  min-width: 48px;\n  justify-content: center;\n  font-variant-numeric: tabular-nums;\n}\n\n.dsh-gv-collapsed-note {\n  margin-left: 8px;\n  color: var(--dsw-alias-label-tertiary);\n  font-size: 12px;\n}\n\n.dsh-gv[data-locked='true'] .dsh-gv-splitter {\n  cursor: default;\n}\n\n.dsh-gv-backdrop {\n  position: fixed;\n  inset: 0;\n  z-index: 900;\n  background: rgba(0, 0, 0, 0.45);\n}\n\n.dsh-gv[data-maximized='true'] {\n  position: fixed;\n  inset: 4vh 4vw;\n  z-index: 1000;\n  max-height: none;\n  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);\n}\n";
 
 // src/shared/contract.ts
 var PACKAGE_ID = "@limix/dsh-graphviz";
@@ -91,7 +91,6 @@ var en = {
   "toolbar.collapse": "Collapse",
   "toolbar.expand": "Expand",
   "collapsed.note": "diagram hidden",
-  "height.label": "Resize panel height",
   "toolbar.lock": "Lock size",
   "toolbar.unlock": "Unlock size",
   "toolbar.maximize": "Maximize view",
@@ -119,7 +118,6 @@ var zh = {
   "toolbar.collapse": "\u6298\u53E0",
   "toolbar.expand": "\u5C55\u5F00",
   "collapsed.note": "\u56FE\u5F62\u5DF2\u6298\u53E0",
-  "height.label": "\u8C03\u6574\u9762\u677F\u9AD8\u5EA6",
   "toolbar.lock": "\u9501\u5B9A\u5C3A\u5BF8",
   "toolbar.unlock": "\u89E3\u9501\u5C3A\u5BF8",
   "toolbar.maximize": "\u653E\u5927\u67E5\u770B",
@@ -668,10 +666,6 @@ var ZOOM_STEP = 1.25;
 var PAN_STEP = 24;
 var DRAG_THRESHOLD = 4;
 var MAX_FIT_SCALE = 2;
-var MIN_BODY_HEIGHT = 220;
-var MAX_BODY_HEIGHT = 1200;
-var MIN_GRAPH_HEIGHT = 200;
-var MAX_GRAPH_HEIGHT = 1e3;
 function parseViewBox(svg) {
   const match = /viewBox=(?:"|')\s*[\d.-]+\s+[\d.-]+\s+([\d.]+)\s+([\d.]+)/i.exec(svg);
   if (match === null) return null;
@@ -709,10 +703,6 @@ function GraphvizPanel({ props }) {
   const [zoom, setZoom] = (0, import_react2.useState)(1);
   const [pan, setPan] = (0, import_react2.useState)({ x: 0, y: 0 });
   const [canvasSize, setCanvasSize] = (0, import_react2.useState)({ width: 0, height: 0 });
-  const [bodyHeight, setBodyHeight] = (0, import_react2.useState)(null);
-  const [containerWidth, setContainerWidth] = (0, import_react2.useState)(0);
-  const bodyHeightRef = (0, import_react2.useRef)(null);
-  const heightGestureRef = (0, import_react2.useRef)(null);
   const gestureRef = (0, import_react2.useRef)(null);
   const suppressClickRef = (0, import_react2.useRef)(false);
   const text = (key) => translate(t, key);
@@ -721,23 +711,24 @@ function GraphvizPanel({ props }) {
     [state]
   );
   const pxMode = viewBox !== null && canvasSize.width > 0 && canvasSize.height > 0;
-  const fitScale = pxMode ? Math.min(
-    MAX_FIT_SCALE,
-    canvasSize.width / viewBox.width,
-    canvasSize.height / viewBox.height
-  ) : 1;
   const geometry = (z, p) => {
     if (!pxMode || viewBox === null) return { x: p.x, y: p.y, width: 0, height: 0, scale: z };
-    const scale = fitScale * z;
+    if (maximized) {
+      const fit = Math.min(
+        MAX_FIT_SCALE,
+        canvasSize.width / viewBox.width,
+        canvasSize.height / viewBox.height
+      );
+      const scale2 = fit * z;
+      const width2 = viewBox.width * scale2;
+      const height2 = viewBox.height * scale2;
+      return { x: (canvasSize.width - width2) / 2 + p.x, y: (canvasSize.height - height2) / 2 + p.y, width: width2, height: height2, scale: scale2 };
+    }
+    const base = Math.min(MAX_FIT_SCALE, canvasSize.width / viewBox.width);
+    const scale = base * z;
     const width = viewBox.width * scale;
     const height = viewBox.height * scale;
-    return {
-      x: (canvasSize.width - width) / 2 + p.x,
-      y: (canvasSize.height - height) / 2 + p.y,
-      width,
-      height,
-      scale
-    };
+    return { x: (canvasSize.width - width) / 2 + p.x, y: 0, width, height, scale };
   };
   const applyTransform = (next) => {
     transformRef.current = next;
@@ -761,12 +752,16 @@ function GraphvizPanel({ props }) {
     const cx = (clientX ?? rect.left + rect.width / 2) - rect.left;
     const cy = (clientY ?? rect.top + rect.height / 2) - rect.top;
     const u = (cx - before.x) / before.scale;
+    if (!maximized) {
+      applyTransform({ zoom: next, x: cx - u * after.scale - after.x, y: 0 });
+      return;
+    }
     const v = (cy - before.y) / before.scale;
     applyTransform({ zoom: next, x: cx - u * after.scale - after.x, y: cy - v * after.scale - after.y });
   };
   const panBy = (dx, dy) => {
     const current = transformRef.current;
-    applyTransform({ ...current, x: current.x + dx, y: current.y + dy });
+    applyTransform({ ...current, x: current.x + dx, y: maximized ? current.y + dy : 0 });
   };
   (0, import_react2.useEffect)(() => {
     setSource(code);
@@ -823,14 +818,6 @@ function GraphvizPanel({ props }) {
     observer.observe(canvas);
     return () => observer.disconnect();
   }, [state.kind]);
-  (0, import_react2.useEffect)(() => {
-    const container = containerRef.current;
-    if (container === null || typeof ResizeObserver === "undefined") return;
-    const observer = new ResizeObserver(() => setContainerWidth(container.getBoundingClientRect().width));
-    observer.observe(container);
-    setContainerWidth(container.getBoundingClientRect().width);
-    return () => observer.disconnect();
-  }, []);
   (0, import_react2.useEffect)(() => {
     if (!maximized) return;
     const onKey = (event) => {
@@ -910,7 +897,7 @@ function GraphvizPanel({ props }) {
     if (!gesture.moved && Math.hypot(dx, dy) < DRAG_THRESHOLD) return;
     gesture.moved = true;
     suppressClickRef.current = true;
-    applyTransform({ ...gesture.origin, x: gesture.origin.x + dx, y: gesture.origin.y + dy });
+    applyTransform({ ...gesture.origin, x: gesture.origin.x + dx, y: maximized ? gesture.origin.y + dy : 0 });
   };
   const endPan = (event) => {
     const gesture = gestureRef.current;
@@ -968,64 +955,11 @@ function GraphvizPanel({ props }) {
     if (layout === "lr") return { flexBasis: `${split ?? DEFAULT_LR_PERCENT}%` };
     return { height: `${split ?? DEFAULT_TB_HEIGHT}px` };
   };
-  const autoBodyHeight = (0, import_react2.useMemo)(() => {
-    if (viewBox === null || containerWidth <= 0) return 0;
-    const aspect = viewBox.height / viewBox.width;
-    const graphWidth = layout === "lr" ? containerWidth * (1 - (split ?? DEFAULT_LR_PERCENT) / 100) : containerWidth;
-    const natural = Math.min(graphWidth * aspect, viewBox.height * MAX_FIT_SCALE);
-    const graphHeight = Math.min(MAX_GRAPH_HEIGHT, Math.max(MIN_GRAPH_HEIGHT, natural));
-    const editorHeight = layout === "tb" && showEditor ? split ?? DEFAULT_TB_HEIGHT : 0;
-    return Math.round(Math.min(MAX_BODY_HEIGHT, Math.max(MIN_BODY_HEIGHT, graphHeight + editorHeight)));
-  }, [viewBox, containerWidth, layout, split, showEditor]);
-  const resolvedBodyHeight = bodyHeight ?? (autoBodyHeight > 0 ? autoBodyHeight : null);
+  const graphBox = geometry(zoom, pan);
+  const autoBodyHeight = pxMode && !maximized ? Math.round(graphBox.height + (layout === "tb" && showEditor ? (split ?? DEFAULT_TB_HEIGHT) + 3 : 0)) : 0;
   const toggleMaximize = () => {
     setMaximized((value) => !value);
     resetTransform();
-  };
-  const beginHeightResize = (event) => {
-    if (event.button !== 0) return;
-    const handle = event.currentTarget;
-    const startHeight = resolvedBodyHeight ?? (containerRef.current?.getBoundingClientRect().height ?? 420);
-    heightGestureRef.current = { pointerId: event.pointerId, startY: event.clientY, startHeight };
-    try {
-      handle.setPointerCapture(event.pointerId);
-    } catch {
-    }
-  };
-  const moveHeightResize = (event) => {
-    const gesture = heightGestureRef.current;
-    if (gesture === null || gesture.pointerId !== event.pointerId) return;
-    const next = Math.min(MAX_BODY_HEIGHT, Math.max(MIN_BODY_HEIGHT, gesture.startHeight + (event.clientY - gesture.startY)));
-    bodyHeightRef.current = Math.round(next);
-    setBodyHeight(Math.round(next));
-  };
-  const endHeightResize = (event) => {
-    const gesture = heightGestureRef.current;
-    if (gesture === null || gesture.pointerId !== event.pointerId) return;
-    heightGestureRef.current = null;
-    try {
-      event.currentTarget.releasePointerCapture(event.pointerId);
-    } catch {
-    }
-  };
-  const heightKey = (event) => {
-    const current = resolvedBodyHeight ?? 420;
-    if (event.key === "ArrowUp") {
-      event.preventDefault();
-      setBodyHeight(Math.max(MIN_BODY_HEIGHT, current - 20));
-    } else if (event.key === "ArrowDown") {
-      event.preventDefault();
-      setBodyHeight(Math.min(MAX_BODY_HEIGHT, current + 20));
-    } else if (event.key === "Home") {
-      event.preventDefault();
-      setBodyHeight(MIN_BODY_HEIGHT);
-    } else if (event.key === "End") {
-      event.preventDefault();
-      setBodyHeight(MAX_BODY_HEIGHT);
-    } else if (event.key === "0" || event.key === "Enter") {
-      event.preventDefault();
-      setBodyHeight(null);
-    }
   };
   const pane = (() => {
     switch (state.kind) {
@@ -1223,7 +1157,7 @@ function GraphvizPanel({ props }) {
             "div",
             {
               className: "dsh-gv-body",
-              style: collapsed ? { display: "none" } : maximized ? { flex: "1 1 auto", height: "auto", minHeight: 0 } : resolvedBodyHeight === null ? void 0 : { height: `${resolvedBodyHeight}px` },
+              style: collapsed ? { display: "none" } : maximized ? { flex: "1 1 auto", height: "auto", minHeight: 0 } : autoBodyHeight > 0 ? { height: `${autoBodyHeight}px` } : void 0,
               children: [
                 /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
                   "div",
@@ -1255,22 +1189,6 @@ function GraphvizPanel({ props }) {
                 ) : null,
                 /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { className: "dsh-gv-graph", children: pane })
               ]
-            }
-          ),
-          collapsed || locked || maximized ? null : /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
-            "div",
-            {
-              className: "dsh-gv-height-handle",
-              role: "separator",
-              "aria-orientation": "horizontal",
-              "aria-label": text("height.label"),
-              tabIndex: 0,
-              onPointerDown: beginHeightResize,
-              onPointerMove: moveHeightResize,
-              onPointerUp: endHeightResize,
-              onPointerCancel: endHeightResize,
-              onDoubleClick: () => setBodyHeight(null),
-              onKeyDown: heightKey
             }
           )
         ]

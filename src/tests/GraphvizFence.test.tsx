@@ -158,17 +158,15 @@ describe('GraphvizFence', () => {
     expect(body.style.display).toBe('')
   })
 
-  it('locks the panel size and removes the resize handles', async () => {
+  it('locks the editor splitter and restores it when unlocked', async () => {
     const { container } = render(<GraphvizFence code="digraph{a->b}" />)
     await flushRender()
-    expect(screen.getByLabelText('Resize panel height')).toBeTruthy()
     expect(screen.getByLabelText('Resize editor and graph')).toBeTruthy()
     fireEvent.click(screen.getByLabelText('Lock size'))
-    expect(screen.queryByLabelText('Resize panel height')).toBeNull()
     expect(screen.queryByLabelText('Resize editor and graph')).toBeNull()
     expect(container.querySelector('.dsh-gv')?.getAttribute('data-locked')).toBe('true')
     fireEvent.click(screen.getByLabelText('Unlock size'))
-    expect(screen.getByLabelText('Resize panel height')).toBeTruthy()
+    expect(screen.getByLabelText('Resize editor and graph')).toBeTruthy()
   })
 
   it('maximizes the view and closes it with Escape', async () => {
@@ -184,17 +182,6 @@ describe('GraphvizFence', () => {
     expect(root.getAttribute('data-maximized')).toBe('false')
     expect(container.querySelector('.dsh-gv-backdrop')).toBeNull()
     expect(screen.getByLabelText('Maximize view')).toBeTruthy()
-  })
-
-  it('resizes the panel height from the handle and resets to auto', async () => {
-    const { container } = render(<GraphvizFence code="digraph{a->b}" />)
-    await flushRender()
-    const body = container.querySelector('.dsh-gv-body') as HTMLElement
-    const handle = screen.getByLabelText('Resize panel height')
-    fireEvent.keyDown(handle, { key: 'ArrowDown' })
-    expect(body.style.height).toBe('440px')
-    fireEvent.keyDown(handle, { key: 'Enter' })
-    expect(body.style.height).toBe('')
   })
 
   it('resizes with the keyboard', () => {

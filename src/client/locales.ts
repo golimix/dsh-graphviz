@@ -22,7 +22,6 @@ export type GraphvizKey =
   | 'toolbar.collapse'
   | 'toolbar.expand'
   | 'collapsed.note'
-  | 'height.label'
   | 'toolbar.lock'
   | 'toolbar.unlock'
   | 'toolbar.maximize'
@@ -51,7 +50,6 @@ export const en: Record<GraphvizKey, string> = {
   'toolbar.collapse': 'Collapse',
   'toolbar.expand': 'Expand',
   'collapsed.note': 'diagram hidden',
-  'height.label': 'Resize panel height',
   'toolbar.lock': 'Lock size',
   'toolbar.unlock': 'Unlock size',
   'toolbar.maximize': 'Maximize view',
@@ -81,7 +79,6 @@ export const zh: Record<GraphvizKey, string> = {
   'toolbar.collapse': '折叠',
   'toolbar.expand': '展开',
   'collapsed.note': '图形已折叠',
-  'height.label': '调整面板高度',
   'toolbar.lock': '锁定尺寸',
   'toolbar.unlock': '解锁尺寸',
   'toolbar.maximize': '放大查看',

@@ -290,25 +290,6 @@
   font-size: 12px;
 }
 
-.dsh-gv-height-handle {
-  flex: 0 0 auto;
-  height: 7px;
-  cursor: row-resize;
-  background: transparent;
-  touch-action: none;
-  transition: background-color 120ms ease;
-}
-
-.dsh-gv-height-handle:hover,
-.dsh-gv-height-handle:active {
-  background: var(--dsh-gv-accent);
-}
-
-.dsh-gv-height-handle:focus-visible {
-  outline: 2px solid var(--dsh-gv-accent);
-  outline-offset: -2px;
-}
-
 .dsh-gv[data-locked='true'] .dsh-gv-splitter {
   cursor: default;
 }
