@@ -111,10 +111,11 @@ describe('GraphvizFence', () => {
     fireEvent.click(screen.getByLabelText('Zoom out'))
     expect(screen.getByText('80%')).toBeTruthy()
     const inner = container.querySelector('.dsh-gv-canvas-inner') as HTMLElement
-    expect(inner.style.transform).toContain('scale(0.8)')
+    expect(inner.style.width).toBe('80%')
+    expect(inner.style.height).toBe('80%')
     fireEvent.click(screen.getAllByLabelText('Reset zoom')[0] as HTMLElement)
     expect(screen.getByText('100%')).toBeTruthy()
-    expect((container.querySelector('.dsh-gv-canvas-inner') as HTMLElement).style.transform).toContain('scale(1)')
+    expect((container.querySelector('.dsh-gv-canvas-inner') as HTMLElement).style.width).toBe('100%')
   })
 
   it('zooms and resets from the keyboard', async () => {

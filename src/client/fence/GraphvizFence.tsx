@@ -422,7 +422,11 @@ export function GraphvizPanel({ props }: { props: FenceProps }) {
             <div
               className="dsh-gv-canvas-inner"
               data-dragging={gestureRef.current?.moved === true}
-              style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})` }}
+              style={{
+                width: `${zoom * 100}%`,
+                height: `${zoom * 100}%`,
+                transform: `translate(${pan.x}px, ${pan.y}px)`,
+              }}
               dangerouslySetInnerHTML={{ __html: state.svg }}
             />
           </div>

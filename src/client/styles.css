@@ -220,12 +220,10 @@
 
 .dsh-gv-canvas {
   position: relative;
-  display: flex;
+  display: block;
   flex: 1;
-  align-items: center;
-  justify-content: center;
   min-height: 0;
-  padding: 16px;
+  padding: 0;
   overflow: hidden;
   background: var(--dsw-alias-bg-layer-1);
   cursor: grab;
@@ -238,18 +236,18 @@
 }
 
 .dsh-gv-canvas-inner {
-  width: 100%;
-  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  /* Zoom is applied as layout size (not a CSS scale) so the SVG re-rasterizes
+     its vectors at the new size instead of upscaling a cached bitmap. */
   transform-origin: 0 0;
-  transition: transform 60ms ease-out;
   user-select: none;
-  will-change: transform;
 }
 
 .dsh-gv-canvas-inner[data-dragging='true'],
 .dsh-gv-canvas:active {
   cursor: grabbing;
-  transition: none;
 }
 
 .dsh-gv-canvas svg {
