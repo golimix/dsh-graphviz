@@ -75,7 +75,7 @@
   /* A definite height keeps flex children from collapsing (TB) or growing to
      the SVG's intrinsic aspect height (LR/Graph); all three layouts share it. */
   height: clamp(420px, 60vh, 760px);
-  min-height: 420px;
+  min-height: 0;
 }
 
 .dsh-gv[data-layout='lr'] .dsh-gv-body {
@@ -288,4 +288,23 @@
   margin-left: 8px;
   color: var(--dsw-alias-label-tertiary);
   font-size: 12px;
+}
+
+.dsh-gv-height-handle {
+  flex: 0 0 auto;
+  height: 7px;
+  cursor: row-resize;
+  background: transparent;
+  touch-action: none;
+  transition: background-color 120ms ease;
+}
+
+.dsh-gv-height-handle:hover,
+.dsh-gv-height-handle:active {
+  background: var(--dsh-gv-accent);
+}
+
+.dsh-gv-height-handle:focus-visible {
+  outline: 2px solid var(--dsh-gv-accent);
+  outline-offset: -2px;
 }

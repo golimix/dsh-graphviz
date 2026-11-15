@@ -1,5 +1,5 @@
 /** The Chat fence layer that renders Graphviz diagrams. */
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type {
   CSSProperties,
   KeyboardEvent as ReactKeyboardEvent,
@@ -28,6 +28,26 @@ const ZOOM_STEP = 1.25
 const PAN_STEP = 24
 /** Movement in px before a pointer gesture counts as a pan rather than a click. */
 const DRAG_THRESHOLD = 4
+
+/** Panel height bounds for the auto layout and the drag handle. */
+const MIN_BODY_HEIGHT = 220
+const MAX_BODY_HEIGHT = 960
+const MIN_GRAPH_HEIGHT = 200
+const MAX_GRAPH_HEIGHT = 680
+
+/**
+ * Read the SVG viewBox size so the viewport can fit and centre the diagram.
+ * @param svg - sanitized SVG markup.
+ * @returns the viewBox size, or null when absent.
+ */
+function parseViewBox(svg: string): { width: number; height: number } | null {
+  const match = /viewBox=(?:"|')\s*[\d.-]+\s+[\d.-]+\s+([\d.]+)\s+([\d.]+)/i.exec(svg)
+  if (match === null) return null
+  const width = Number.parseFloat(match[1] as string)
+  const height = Number.parseFloat(match[2] as string)
+  if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) return null
+  return { width, height }
+}
 
 /** Installed layout modes. */
 type LayoutMode = 'tb' | 'lr' | 'graph'
@@ -99,12 +119,46 @@ export function GraphvizPanel({ props }: { props: FenceProps }) {
   const transformRef = useRef<ViewTransform>(NO_TRANSFORM)
   const [zoom, setZoom] = useState(1)
   const [pan, setPan] = useState({ x: 0, y: 0 })
+  /** Sandboxed canvas size; 0 until a ResizeObserver reports it (or in tests). */
+  const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 })
+  const [bodyHeight, setBodyHeight] = useState<number | null>(null)
+  const [containerWidth, setContainerWidth] = useState(0)
+  const bodyHeightRef = useRef<number | null>(null)
+  const heightGestureRef = useRef<{ pointerId: number; startY: number; startHeight: number } | null>(null)
   /** Pointer gesture in flight on the graph canvas. */
   const gestureRef = useRef<{ pointerId: number; startX: number; startY: number; origin: ViewTransform; moved: boolean } | null>(null)
   /** Set for one click after a drag, so a link under the pointer is not followed. */
   const suppressClickRef = useRef(false)
 
   const text = (key: GraphvizKey): string => translate(t, key)
+
+  const viewBox = useMemo(
+    () => (state.kind === 'ready' ? parseViewBox(state.svg) : null),
+    [state],
+  )
+
+  const pxMode = viewBox !== null && canvasSize.width > 0 && canvasSize.height > 0
+  const fitScale = pxMode ? Math.min(canvasSize.width / (viewBox as { width: number }).width, canvasSize.height / (viewBox as { height: number }).height) : 1
+
+  /**
+   * Resolve the rendered box for one zoom/pan pair.
+   * @param z - zoom relative to the fitted size.
+   * @param p - user pan offset.
+   * @returns box size, offset and the fitted scale.
+   */
+  const geometry = (z: number, p: { x: number; y: number }): { x: number; y: number; width: number; height: number; scale: number } => {
+    if (!pxMode || viewBox === null) return { x: p.x, y: p.y, width: 0, height: 0, scale: z }
+    const scale = fitScale * z
+    const width = viewBox.width * scale
+    const height = viewBox.height * scale
+    return {
+      x: (canvasSize.width - width) / 2 + p.x,
+      y: (canvasSize.height - height) / 2 + p.y,
+      width,
+      height,
+      scale,
+    }
+  }
 
   const applyTransform = (next: ViewTransform): void => {
     transformRef.current = next
@@ -127,15 +181,17 @@ export function GraphvizPanel({ props }: { props: FenceProps }) {
     const next = clampZoom(current.zoom * factor)
     if (Math.abs(next - current.zoom) < 1e-4) return
     const rect = canvasRef.current?.getBoundingClientRect()
-    if (rect === undefined) {
+    if (!pxMode || rect === undefined) {
       applyTransform({ ...current, zoom: next })
       return
     }
-    const cx = clientX ?? rect.left + rect.width / 2
-    const cy = clientY ?? rect.top + rect.height / 2
-    const px = (cx - rect.left - current.x) / current.zoom
-    const py = (cy - rect.top - current.y) / current.zoom
-    applyTransform({ zoom: next, x: cx - rect.left - px * next, y: cy - rect.top - py * next })
+    const before = geometry(current.zoom, { x: current.x, y: current.y })
+    const after = geometry(next, { x: 0, y: 0 })
+    const cx = (clientX ?? rect.left + rect.width / 2) - rect.left
+    const cy = (clientY ?? rect.top + rect.height / 2) - rect.top
+    const u = (cx - before.x) / before.scale
+    const v = (cy - before.y) / before.scale
+    applyTransform({ zoom: next, x: cx - u * after.scale - after.x, y: cy - v * after.scale - after.y })
   }
 
   /**
@@ -200,6 +256,35 @@ export function GraphvizPanel({ props }: { props: FenceProps }) {
     canvas.addEventListener('wheel', onWheel, { passive: false })
     return () => canvas.removeEventListener('wheel', onWheel)
   }, [state.kind])
+
+  // Track the canvas size so the diagram can be fitted and centred.
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (canvas === null) return
+    const measure = (): void => {
+      const rect = canvas.getBoundingClientRect()
+      setCanvasSize((current) => (
+        current.width === Math.round(rect.width) && current.height === Math.round(rect.height)
+          ? current
+          : { width: Math.round(rect.width), height: Math.round(rect.height) }
+      ))
+    }
+    measure()
+    if (typeof ResizeObserver === 'undefined') return
+    const observer = new ResizeObserver(measure)
+    observer.observe(canvas)
+    return () => observer.disconnect()
+  }, [state.kind])
+
+  // Track the panel width; the automatic height derives from the diagram aspect.
+  useEffect(() => {
+    const container = containerRef.current
+    if (container === null || typeof ResizeObserver === 'undefined') return
+    const observer = new ResizeObserver(() => setContainerWidth(container.getBoundingClientRect().width))
+    observer.observe(container)
+    setContainerWidth(container.getBoundingClientRect().width)
+    return () => observer.disconnect()
+  }, [])
 
   const showEditor = layout !== 'graph'
 
@@ -380,6 +465,85 @@ export function GraphvizPanel({ props }: { props: FenceProps }) {
     return { height: `${split ?? DEFAULT_TB_HEIGHT}px` }
   }
 
+  const autoBodyHeight = useMemo(() => {
+    if (viewBox === null || containerWidth <= 0) return 0
+    const aspect = viewBox.height / viewBox.width
+    const graphWidth = layout === 'lr' ? containerWidth * (1 - (split ?? DEFAULT_LR_PERCENT) / 100) : containerWidth
+    const graphHeight = Math.min(MAX_GRAPH_HEIGHT, Math.max(MIN_GRAPH_HEIGHT, graphWidth * aspect))
+    const editorHeight = layout === 'tb' && showEditor ? (split ?? DEFAULT_TB_HEIGHT) : 0
+    const viewportMax = typeof window === 'undefined' ? MAX_BODY_HEIGHT : Math.max(MIN_BODY_HEIGHT, window.innerHeight * 0.85)
+    return Math.round(Math.min(MAX_BODY_HEIGHT, viewportMax, Math.max(MIN_BODY_HEIGHT, graphHeight + editorHeight)))
+  }, [viewBox, containerWidth, layout, split, showEditor])
+
+  const resolvedBodyHeight = bodyHeight ?? (autoBodyHeight > 0 ? autoBodyHeight : null)
+
+  /**
+   * Start dragging the panel's bottom edge.
+   * @param event - pointer down on the height handle.
+   */
+  const beginHeightResize = (event: ReactPointerEvent<HTMLDivElement>): void => {
+    if (event.button !== 0) return
+    const handle = event.currentTarget
+    const startHeight = resolvedBodyHeight ?? (containerRef.current?.getBoundingClientRect().height ?? 420)
+    heightGestureRef.current = { pointerId: event.pointerId, startY: event.clientY, startHeight }
+    try {
+      handle.setPointerCapture(event.pointerId)
+    } catch {
+      // Synthetic pointers cannot be captured; the listeners below still track.
+    }
+  }
+
+  /**
+   * Resize the panel while the height handle is dragged.
+   * @param event - pointer move on the height handle.
+   */
+  const moveHeightResize = (event: ReactPointerEvent<HTMLDivElement>): void => {
+    const gesture = heightGestureRef.current
+    if (gesture === null || gesture.pointerId !== event.pointerId) return
+    const next = Math.min(MAX_BODY_HEIGHT, Math.max(MIN_BODY_HEIGHT, gesture.startHeight + (event.clientY - gesture.startY)))
+    bodyHeightRef.current = Math.round(next)
+    setBodyHeight(Math.round(next))
+  }
+
+  /**
+   * Finish a height drag.
+   * @param event - pointer up or cancel on the height handle.
+   */
+  const endHeightResize = (event: ReactPointerEvent<HTMLDivElement>): void => {
+    const gesture = heightGestureRef.current
+    if (gesture === null || gesture.pointerId !== event.pointerId) return
+    heightGestureRef.current = null
+    try {
+      event.currentTarget.releasePointerCapture(event.pointerId)
+    } catch {
+      // Nothing to release when the pointer was never captured.
+    }
+  }
+
+  /**
+   * Resize the panel from the keyboard.
+   * @param event - key event on the height handle.
+   */
+  const heightKey = (event: ReactKeyboardEvent<HTMLDivElement>): void => {
+    const current = resolvedBodyHeight ?? 420
+    if (event.key === 'ArrowUp') {
+      event.preventDefault()
+      setBodyHeight(Math.max(MIN_BODY_HEIGHT, current - 20))
+    } else if (event.key === 'ArrowDown') {
+      event.preventDefault()
+      setBodyHeight(Math.min(MAX_BODY_HEIGHT, current + 20))
+    } else if (event.key === 'Home') {
+      event.preventDefault()
+      setBodyHeight(MIN_BODY_HEIGHT)
+    } else if (event.key === 'End') {
+      event.preventDefault()
+      setBodyHeight(MAX_BODY_HEIGHT)
+    } else if (event.key === '0' || event.key === 'Enter') {
+      event.preventDefault()
+      setBodyHeight(null)
+    }
+  }
+
   const pane = (() => {
     switch (state.kind) {
       case 'loading':
@@ -422,11 +586,21 @@ export function GraphvizPanel({ props }: { props: FenceProps }) {
             <div
               className="dsh-gv-canvas-inner"
               data-dragging={gestureRef.current?.moved === true}
-              style={{
-                width: `${zoom * 100}%`,
-                height: `${zoom * 100}%`,
-                transform: `translate(${pan.x}px, ${pan.y}px)`,
-              }}
+              style={(() => {
+                const box = geometry(zoom, pan)
+                if (!pxMode) {
+                  return {
+                    width: `${zoom * 100}%`,
+                    height: `${zoom * 100}%`,
+                    transform: `translate(${pan.x}px, ${pan.y}px)`,
+                  }
+                }
+                return {
+                  width: `${box.width}px`,
+                  height: `${box.height}px`,
+                  transform: `translate(${box.x}px, ${box.y}px)`,
+                }
+              })()}
               dangerouslySetInnerHTML={{ __html: state.svg }}
             />
           </div>
@@ -514,7 +688,10 @@ export function GraphvizPanel({ props }: { props: FenceProps }) {
           {text(collapsed ? 'toolbar.expand' : 'toolbar.collapse')}
         </button>
       </div>
-      <div className="dsh-gv-body" style={collapsed ? { display: 'none' } : undefined}>
+      <div
+        className="dsh-gv-body"
+        style={collapsed ? { display: 'none' } : resolvedBodyHeight === null ? undefined : { height: `${resolvedBodyHeight}px` }}
+      >
         <div
           className="dsh-gv-editor-pane"
           style={showEditor ? editorStyle() : { display: 'none' }}
@@ -539,6 +716,21 @@ export function GraphvizPanel({ props }: { props: FenceProps }) {
         ) : null}
         <div className="dsh-gv-graph">{pane}</div>
       </div>
+      {collapsed ? null : (
+        <div
+          className="dsh-gv-height-handle"
+          role="separator"
+          aria-orientation="horizontal"
+          aria-label={text('height.label')}
+          tabIndex={0}
+          onPointerDown={beginHeightResize}
+          onPointerMove={moveHeightResize}
+          onPointerUp={endHeightResize}
+          onPointerCancel={endHeightResize}
+          onDoubleClick={() => setBodyHeight(null)}
+          onKeyDown={heightKey}
+        />
+      )}
     </div>
   )
 }

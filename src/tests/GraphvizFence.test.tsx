@@ -92,13 +92,13 @@ describe('GraphvizFence', () => {
 
     fireEvent.click(screen.getByText('LR'))
     expect(root.getAttribute('data-layout')).toBe('lr')
-    expect(screen.getByRole('separator').getAttribute('aria-orientation')).toBe('vertical')
+    expect(screen.getByLabelText('Resize editor and graph').getAttribute('aria-orientation')).toBe('vertical')
 
     fireEvent.click(screen.getByText('Graph'))
     expect(root.getAttribute('data-layout')).toBe('graph')
     expect(screen.getByTestId('editor')).toBeTruthy()
     expect((screen.getByTestId('editor').parentElement as HTMLElement).style.display).toBe('none')
-    expect(screen.queryByRole('separator')).toBeNull()
+    expect(screen.queryByLabelText('Resize editor and graph')).toBeNull()
   })
 
   it('zooms with the toolbar controls and resets to 100%', async () => {
@@ -158,12 +158,23 @@ describe('GraphvizFence', () => {
     expect(body.style.display).toBe('')
   })
 
+  it('resizes the panel height from the handle and resets to auto', async () => {
+    const { container } = render(<GraphvizFence code="digraph{a->b}" />)
+    await flushRender()
+    const body = container.querySelector('.dsh-gv-body') as HTMLElement
+    const handle = screen.getByLabelText('Resize panel height')
+    fireEvent.keyDown(handle, { key: 'ArrowDown' })
+    expect(body.style.height).toBe('440px')
+    fireEvent.keyDown(handle, { key: 'Enter' })
+    expect(body.style.height).toBe('')
+  })
+
   it('resizes with the keyboard', () => {
     render(<GraphvizFence code="digraph{a->b}" />)
     fireEvent.click(screen.getByText('LR'))
     const pane = screen.getByTestId('editor').parentElement as HTMLElement
     expect(pane.style.flexBasis).toBe('45%')
-    fireEvent.keyDown(screen.getByRole('separator'), { key: 'ArrowRight' })
+    fireEvent.keyDown(screen.getByLabelText('Resize editor and graph'), { key: 'ArrowRight' })
     expect(pane.style.flexBasis).toBe('47%')
   })
 })

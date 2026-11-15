@@ -22,6 +22,7 @@ export type GraphvizKey =
   | 'toolbar.collapse'
   | 'toolbar.expand'
   | 'collapsed.note'
+  | 'height.label'
 
 /** English dictionary, the fallback for every other locale. */
 export const en: Record<GraphvizKey, string> = {
@@ -46,6 +47,7 @@ export const en: Record<GraphvizKey, string> = {
   'toolbar.collapse': 'Collapse',
   'toolbar.expand': 'Expand',
   'collapsed.note': 'diagram hidden',
+  'height.label': 'Resize panel height',
 }
 
 /** Chinese dictionary. */
@@ -71,6 +73,7 @@ export const zh: Record<GraphvizKey, string> = {
   'toolbar.collapse': '折叠',
   'toolbar.expand': '展开',
   'collapsed.note': '图形已折叠',
+  'height.label': '调整面板高度',
 }
 
 /** Dictionaries registered under the `graphviz` namespace. */
