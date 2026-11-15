@@ -80,26 +80,28 @@ describe('built bundle', () => {
 
     const { require, asyncCalls } = moduleRequire(registrations)
     const exports = main.factory(require) as { inject: string[]; apply: (ctx: unknown) => void }
-    expect(exports.inject).toEqual(['slots', 'locale'])
+    expect(exports.inject).toEqual(['slots', 'locale', 'documentPreviews'])
 
     let component: React.ComponentType<{ code: string; streaming?: boolean; children?: React.ReactNode }> | undefined
-    const slots: unknown[] = []
+    const slots: { name?: string; options: unknown }[] = []
     const ctx = {
       effect: (effect: () => unknown) => {
         effect()
       },
       locale: { register: () => () => undefined, bind: () => (key: string) => key },
+      documentPreviews: { register: () => () => undefined },
       slots: {
         inject: (_name: string, register: () => unknown) => register(),
-        register: (options: unknown, componentType: typeof component) => {
-          slots.push(options)
-          component = componentType
+        register: (options: { name?: string }, componentType: typeof component) => {
+          slots.push({ name: options.name, options })
+          if (options.name === 'conversation.chat.markdown.fence') component = componentType
           return () => undefined
         },
       },
     }
     exports.apply(ctx)
-    expect(slots).toHaveLength(3)
+    expect(slots.filter((entry) => entry.name === 'conversation.chat.markdown.fence')).toHaveLength(3)
+    expect(slots.filter((entry) => entry.name === 'sidebar.right.tab.document')).toHaveLength(1)
 
     // Answer Monaco from the global so the integration test never touches the CDN.
     const editor = {

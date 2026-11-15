@@ -49,6 +49,10 @@ Artifacts:
 - **Theme and copy**: colors only use `--dsw-alias-*` tokens; visible copy is registered through the locale service, and tests lock the `en`/`zh` key sets.
 - **Editor with fallback**: Monaco is a CDN resource at a pinned version; a load failure never blocks editing or rendering.
 
+## Sidebar preview
+
+Opening a `.dot` file from the right Sidebar's file navigator uses the same panel as a Chat fence: source editing, live re-render, layouts, zoom, lock, maximize, and collapse. The renderer registers at the `extension` band, so the builtin plain-text/code viewer stays selectable in the renderer dropdown. Editing is a local draft: the Sidebar file API is read-only, so saving goes through the agent or an external editor rather than a save button.
+
 ## Install
 
 Local link install:

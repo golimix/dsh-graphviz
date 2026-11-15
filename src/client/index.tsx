@@ -3,10 +3,11 @@ import styles from './styles.css'
 import { PACKAGE_ID, FENCE_KEYS, FENCE_SLOT, LOCALE_NS } from '../shared/contract'
 import type { ClientContext } from './dsh'
 import { GraphvizFence } from './fence/GraphvizFence'
+import { registerDotDocument } from './document'
 import { dictionaries } from './locales'
 
 /** Services required before the plugin can register anything. */
-export const inject = ['slots', 'locale']
+export const inject = ['slots', 'locale', 'documentPreviews']
 
 /**
  * Install the plugin-owned stylesheet and return its removal.
@@ -30,6 +31,7 @@ function installStyles(css: string): () => void {
 export function apply(ctx: ClientContext): void {
   ctx.effect(() => ctx.locale.register(LOCALE_NS, dictionaries), 'dsh-graphviz: dictionaries')
   ctx.effect(() => installStyles(styles), 'dsh-graphviz: styles')
+  registerDotDocument(ctx)
   for (const key of FENCE_KEYS) {
     ctx.slots.inject(FENCE_SLOT, () =>
       ctx.slots.register(

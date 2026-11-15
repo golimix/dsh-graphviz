@@ -308,3 +308,16 @@
   max-height: none;
   box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);
 }
+
+.dsh-gv-document {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+}
+
+.dsh-gv-document .dsh-gv {
+  flex: 1 1 auto;
+  min-width: 0;
+}

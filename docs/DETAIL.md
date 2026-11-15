@@ -17,6 +17,7 @@ Interactive Graphviz SVG diagrams for `dot`, `graphviz`, and `gv` code fences in
 - **Theme adaptation**: the panel uses DSH theme tokens; Graphviz black strokes and text map to the current theme foreground, and text on light fills switches to a dark color automatically.
 - **Safe rendering**: SVG passes through an allowlist sanitizer that removes scripts, `foreignObject`, event attributes, and dangerous URLs, and isolates ids with a per-instance prefix.
 - **Error reporting**: syntax or engine errors appear inside the graph area; fixing the source or pressing retry recovers.
+- **Sidebar `.dot` preview**: opening a `.dot` file from the file navigator reuses this panel in the right Sidebar; the renderer dropdown keeps the builtin plain-text viewer available. Editing is a local draft because the Sidebar file API is read-only.
 
 ## Usage
 
