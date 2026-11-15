@@ -1,6 +1,6 @@
 {
   "name": "@limix/dsh-graphviz",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "description": "TypeScript Graphviz viewer for DSH Chat: renders dot, graphviz, and gv fences as interactive SVG diagrams.",
   "license": "MIT",

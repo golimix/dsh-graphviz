@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "Graphviz diagrams",
-    "description": "Renders dot, graphviz, and gv code fences as interactive Graphviz SVG diagrams, with source editing and layout switching.",
+    "description": "Renders dot, graphviz, and gv code fences as interactive Graphviz SVG diagrams with zoom, pan, collapse, source editing and layout switching.",
     "detail": "docs/DETAIL.md"
   }
 }

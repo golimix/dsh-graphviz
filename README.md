@@ -1,6 +1,6 @@
 # @limix/dsh-graphviz
 
-DSH 的 TypeScript Graphviz 查看器 bundle。它接管 Chat 中的 `dot`、`graphviz`、`gv` 代码围栏，渲染为可交互、可编辑的 SVG 图形。用户文档见 [docs/DETAIL.md](docs/DETAIL.md)。
+DSH 的 TypeScript Graphviz 查看器 bundle。它接管 Chat 中的 `dot`、`graphviz`、`gv` 代码围栏，渲染为可缩放、可平移、可折叠、可编辑的 SVG 图形。用户文档见 [docs/DETAIL.md](docs/DETAIL.md)。
 
 ## 目录
 

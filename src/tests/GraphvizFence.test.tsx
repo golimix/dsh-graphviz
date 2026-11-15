@@ -101,6 +101,62 @@ describe('GraphvizFence', () => {
     expect(screen.queryByRole('separator')).toBeNull()
   })
 
+  it('zooms with the toolbar controls and resets to 100%', async () => {
+    const { container } = render(<GraphvizFence code="digraph{a->b}" />)
+    await flushRender()
+    expect(screen.getByText('100%')).toBeTruthy()
+    fireEvent.click(screen.getByLabelText('Zoom in'))
+    expect(screen.getByText('125%')).toBeTruthy()
+    fireEvent.click(screen.getByLabelText('Zoom out'))
+    fireEvent.click(screen.getByLabelText('Zoom out'))
+    expect(screen.getByText('80%')).toBeTruthy()
+    const inner = container.querySelector('.dsh-gv-canvas-inner') as HTMLElement
+    expect(inner.style.transform).toContain('scale(0.8)')
+    fireEvent.click(screen.getAllByLabelText('Reset zoom')[0] as HTMLElement)
+    expect(screen.getByText('100%')).toBeTruthy()
+    expect((container.querySelector('.dsh-gv-canvas-inner') as HTMLElement).style.transform).toContain('scale(1)')
+  })
+
+  it('zooms and resets from the keyboard', async () => {
+    const { container } = render(<GraphvizFence code="digraph{a->b}" />)
+    await flushRender()
+    const canvas = container.querySelector('.dsh-gv-canvas') as HTMLElement
+    fireEvent.keyDown(canvas, { key: '+' })
+    expect(screen.getByText('125%')).toBeTruthy()
+    fireEvent.keyDown(canvas, { key: '0' })
+    expect(screen.getByText('100%')).toBeTruthy()
+  })
+
+  it('zooms with the wheel without scrolling the page', async () => {
+    const { container } = render(<GraphvizFence code="digraph{a->b}" />)
+    await flushRender()
+    const canvas = container.querySelector('.dsh-gv-canvas') as HTMLElement
+    const event = new Event('wheel', { bubbles: true, cancelable: true })
+    Object.defineProperty(event, 'deltaY', { value: -120 })
+    act(() => {
+      canvas.dispatchEvent(event)
+    })
+    expect(event.defaultPrevented).toBe(true)
+    expect(screen.getByText('120%')).toBeTruthy()
+  })
+
+  it('collapses the body and skips rendering while hidden', async () => {
+    const { container, rerender } = render(<GraphvizFence code="digraph{a->b}" />)
+    await flushRender()
+    expect(mocks.render).toHaveBeenCalledTimes(1)
+    fireEvent.click(screen.getByText('Collapse'))
+    const body = container.querySelector('.dsh-gv-body') as HTMLElement
+    expect(body.style.display).toBe('none')
+    expect(screen.getByText('Expand')).toBeTruthy()
+    rerender(<GraphvizFence code="digraph{a->c}" />)
+    await flushRender()
+    expect(mocks.render).toHaveBeenCalledTimes(1)
+    fireEvent.click(screen.getByText('Expand'))
+    await flushRender()
+    expect(mocks.render).toHaveBeenCalledTimes(2)
+    expect(body.style.display).toBe('')
+  })
+
   it('resizes with the keyboard', () => {
     render(<GraphvizFence code="digraph{a->b}" />)
     fireEvent.click(screen.getByText('LR'))

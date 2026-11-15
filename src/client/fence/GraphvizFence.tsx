@@ -21,6 +21,14 @@ const MIN_PANE_PX = 80
 const MIN_LR_PERCENT = 20
 const MAX_LR_PERCENT = 70
 
+/** Zoom limits and step sizes for the graph viewport. */
+const MIN_ZOOM = 0.25
+const MAX_ZOOM = 6
+const ZOOM_STEP = 1.25
+const PAN_STEP = 24
+/** Movement in px before a pointer gesture counts as a pan rather than a click. */
+const DRAG_THRESHOLD = 4
+
 /** Installed layout modes. */
 type LayoutMode = 'tb' | 'lr' | 'graph'
 
@@ -31,6 +39,16 @@ type RenderState =
   | { kind: 'ready'; svg: string }
   | { kind: 'error'; message: string }
 
+/** One pan/zoom transform of the graph viewport. */
+interface ViewTransform {
+  zoom: number
+  x: number
+  y: number
+}
+
+/** The neutral transform: 100%, no pan. */
+const NO_TRANSFORM: ViewTransform = { zoom: 1, x: 0, y: 0 }
+
 let instanceSeq = 0
 
 /**
@@ -40,6 +58,15 @@ let instanceSeq = 0
 function nextIdPrefix(): string {
   instanceSeq += 1
   return `gv${instanceSeq}-`
+}
+
+/**
+ * Clamp a zoom factor to the supported range.
+ * @param zoom - requested zoom.
+ * @returns a usable zoom.
+ */
+function clampZoom(zoom: number): number {
+  return Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, zoom))
 }
 
 /**
@@ -62,20 +89,74 @@ export function GraphvizPanel({ props }: { props: FenceProps }) {
   const [source, setSource] = useState(code)
   const [layout, setLayout] = useState<LayoutMode>('tb')
   const [split, setSplit] = useState<number | null>(null)
+  const [collapsed, setCollapsed] = useState(false)
   const [state, setState] = useState<RenderState>(code.trim() === '' ? { kind: 'idle' } : { kind: 'loading', engineReady: false })
   const [retryToken, setRetryToken] = useState(0)
   const [idPrefix] = useState(nextIdPrefix)
   const containerRef = useRef<HTMLDivElement | null>(null)
+  const canvasRef = useRef<HTMLDivElement | null>(null)
+  /** Live transform, mirrored into a ref so native listeners never read stale state. */
+  const transformRef = useRef<ViewTransform>(NO_TRANSFORM)
+  const [zoom, setZoom] = useState(1)
+  const [pan, setPan] = useState({ x: 0, y: 0 })
+  /** Pointer gesture in flight on the graph canvas. */
+  const gestureRef = useRef<{ pointerId: number; startX: number; startY: number; origin: ViewTransform; moved: boolean } | null>(null)
+  /** Set for one click after a drag, so a link under the pointer is not followed. */
+  const suppressClickRef = useRef(false)
 
   const text = (key: GraphvizKey): string => translate(t, key)
+
+  const applyTransform = (next: ViewTransform): void => {
+    transformRef.current = next
+    setZoom(next.zoom)
+    setPan({ x: next.x, y: next.y })
+  }
+
+  const resetTransform = (): void => {
+    applyTransform(NO_TRANSFORM)
+  }
+
+  /**
+   * Zoom around a point in client coordinates, keeping that point pinned.
+   * @param factor - multiplier applied to the current zoom.
+   * @param clientX - pointer x; the viewport centre when omitted.
+   * @param clientY - pointer y; the viewport centre when omitted.
+   */
+  const zoomBy = (factor: number, clientX?: number, clientY?: number): void => {
+    const current = transformRef.current
+    const next = clampZoom(current.zoom * factor)
+    if (Math.abs(next - current.zoom) < 1e-4) return
+    const rect = canvasRef.current?.getBoundingClientRect()
+    if (rect === undefined) {
+      applyTransform({ ...current, zoom: next })
+      return
+    }
+    const cx = clientX ?? rect.left + rect.width / 2
+    const cy = clientY ?? rect.top + rect.height / 2
+    const px = (cx - rect.left - current.x) / current.zoom
+    const py = (cy - rect.top - current.y) / current.zoom
+    applyTransform({ zoom: next, x: cx - rect.left - px * next, y: cy - rect.top - py * next })
+  }
+
+  /**
+   * Pan the viewport by a fixed step.
+   * @param dx - horizontal delta in px.
+   * @param dy - vertical delta in px.
+   */
+  const panBy = (dx: number, dy: number): void => {
+    const current = transformRef.current
+    applyTransform({ ...current, x: current.x + dx, y: current.y + dy })
+  }
 
   // A finished streaming fence replaces the local draft.
   useEffect(() => {
     setSource(code)
   }, [code])
 
-  // Debounced render; cleanup marks the in-flight attempt as stale.
+  // Debounced render; cleanup marks the in-flight attempt as stale. A collapsed
+  // panel renders nothing and starts no engine work until it is expanded again.
   useEffect(() => {
+    if (collapsed) return
     const input = source
     if (input.trim() === '') {
       setState({ kind: 'idle' })
@@ -93,6 +174,7 @@ export function GraphvizPanel({ props }: { props: FenceProps }) {
         .then((raw) => {
           if (cancelled || raw === undefined) return
           setState({ kind: 'ready', svg: sanitizeSvg(raw, { idPrefix }) })
+          applyTransform(NO_TRANSFORM)
         })
         .catch((error: unknown) => {
           if (cancelled) return
@@ -103,7 +185,21 @@ export function GraphvizPanel({ props }: { props: FenceProps }) {
       cancelled = true
       window.clearTimeout(timer)
     }
-  }, [source, retryToken, idPrefix])
+  }, [source, retryToken, idPrefix, collapsed])
+
+  // Wheel zoom needs a non-passive listener so the page does not scroll while
+  // the pointer is over the graph.
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (canvas === null) return
+    const onWheel = (event: WheelEvent): void => {
+      if (event.ctrlKey || event.metaKey || event.shiftKey) return
+      event.preventDefault()
+      zoomBy(Math.exp(-event.deltaY * 0.0015), event.clientX, event.clientY)
+    }
+    canvas.addEventListener('wheel', onWheel, { passive: false })
+    return () => canvas.removeEventListener('wheel', onWheel)
+  }, [state.kind])
 
   const showEditor = layout !== 'graph'
 
@@ -171,6 +267,111 @@ export function GraphvizPanel({ props }: { props: FenceProps }) {
   }
 
   /**
+   * Start a pan gesture on the graph canvas.
+   * @param event - pointer down on the canvas.
+   */
+  const beginPan = (event: ReactPointerEvent<HTMLDivElement>): void => {
+    if (event.button !== 0) return
+    const canvas = event.currentTarget
+    gestureRef.current = {
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      origin: transformRef.current,
+      moved: false,
+    }
+    suppressClickRef.current = false
+    try {
+      canvas.setPointerCapture(event.pointerId)
+    } catch {
+      // Synthetic pointers cannot be captured; the listener below still tracks.
+    }
+  }
+
+  /**
+   * Track the in-flight pan gesture.
+   * @param event - pointer move on the canvas while a gesture is active.
+   */
+  const movePan = (event: ReactPointerEvent<HTMLDivElement>): void => {
+    const gesture = gestureRef.current
+    if (gesture === null || gesture.pointerId !== event.pointerId) return
+    const dx = event.clientX - gesture.startX
+    const dy = event.clientY - gesture.startY
+    if (!gesture.moved && Math.hypot(dx, dy) < DRAG_THRESHOLD) return
+    gesture.moved = true
+    suppressClickRef.current = true
+    applyTransform({ ...gesture.origin, x: gesture.origin.x + dx, y: gesture.origin.y + dy })
+  }
+
+  /**
+   * Finish a pan gesture and release pointer capture.
+   * @param event - pointer up or cancel on the canvas.
+   */
+  const endPan = (event: ReactPointerEvent<HTMLDivElement>): void => {
+    const gesture = gestureRef.current
+    if (gesture === null || gesture.pointerId !== event.pointerId) return
+    gestureRef.current = null
+    try {
+      event.currentTarget.releasePointerCapture(event.pointerId)
+    } catch {
+      // Nothing to release when the pointer was never captured.
+    }
+  }
+
+  /**
+   * Swallow the click that follows a drag so a link is not followed.
+   * @param event - capture-phase click on the canvas.
+   */
+  const clickCapture = (event: { preventDefault: () => void; stopPropagation: () => void }): void => {
+    if (!suppressClickRef.current) return
+    suppressClickRef.current = false
+    event.preventDefault()
+    event.stopPropagation()
+  }
+
+  /**
+   * Keyboard pan/zoom while the canvas is focused.
+   * @param event - key event on the canvas.
+   */
+  const viewKey = (event: ReactKeyboardEvent<HTMLDivElement>): void => {
+    switch (event.key) {
+      case '+':
+      case '=':
+        event.preventDefault()
+        zoomBy(ZOOM_STEP)
+        return
+      case '-':
+      case '_':
+        event.preventDefault()
+        zoomBy(1 / ZOOM_STEP)
+        return
+      case '0':
+      case 'r':
+      case 'R':
+        event.preventDefault()
+        resetTransform()
+        return
+      case 'ArrowUp':
+        event.preventDefault()
+        panBy(0, -PAN_STEP)
+        return
+      case 'ArrowDown':
+        event.preventDefault()
+        panBy(0, PAN_STEP)
+        return
+      case 'ArrowLeft':
+        event.preventDefault()
+        panBy(-PAN_STEP, 0)
+        return
+      case 'ArrowRight':
+        event.preventDefault()
+        panBy(PAN_STEP, 0)
+        return
+      default:
+    }
+  }
+
+  /**
    * Compute the inline size of the editor pane.
    * @returns CSS properties for the pane.
    */
@@ -204,7 +405,27 @@ export function GraphvizPanel({ props }: { props: FenceProps }) {
         )
       case 'ready':
         return (
-          <div className="dsh-gv-canvas" aria-label={text('graph.aria')} dangerouslySetInnerHTML={{ __html: state.svg }} />
+          <div
+            ref={canvasRef}
+            className="dsh-gv-canvas"
+            role="group"
+            tabIndex={0}
+            aria-label={text('graph.aria')}
+            onPointerDown={beginPan}
+            onPointerMove={movePan}
+            onPointerUp={endPan}
+            onPointerCancel={endPan}
+            onDoubleClick={resetTransform}
+            onClickCapture={clickCapture}
+            onKeyDown={viewKey}
+          >
+            <div
+              className="dsh-gv-canvas-inner"
+              data-dragging={gestureRef.current?.moved === true}
+              style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})` }}
+              dangerouslySetInnerHTML={{ __html: state.svg }}
+            />
+          </div>
         )
       case 'idle':
         return <div className="dsh-gv-empty">{text('empty')}</div>
@@ -216,28 +437,80 @@ export function GraphvizPanel({ props }: { props: FenceProps }) {
       ref={containerRef}
       className="dsh-gv"
       data-layout={layout}
+      data-collapsed={collapsed}
       data-testid="dsh-gv"
     >
       <div className="dsh-gv-toolbar">
         <span className="dsh-gv-brand">{text('toolbar.label')}</span>
+        {collapsed ? <span className="dsh-gv-collapsed-note">{text('collapsed.note')}</span> : null}
         <span className="dsh-gv-spacer" />
-        {(['tb', 'lr', 'graph'] as const).map((mode) => (
-          <button
-            key={mode}
-            type="button"
-            className="dsh-gv-button"
-            data-active={layout === mode}
-            aria-pressed={layout === mode}
-            onClick={() => {
-              setLayout(mode)
-              setSplit(null)
-            }}
-          >
-            {text(`toolbar.${mode}` as GraphvizKey)}
-          </button>
-        ))}
+        {collapsed ? null : (
+          <>
+            {(['tb', 'lr', 'graph'] as const).map((mode) => (
+              <button
+                key={mode}
+                type="button"
+                className="dsh-gv-button"
+                data-active={layout === mode}
+                aria-pressed={layout === mode}
+                onClick={() => {
+                  setLayout(mode)
+                  setSplit(null)
+                }}
+              >
+                {text(`toolbar.${mode}` as GraphvizKey)}
+              </button>
+            ))}
+            <div className="dsh-gv-zoomctl" role="group" aria-label={text('zoom.aria')}>
+              <button
+                type="button"
+                className="dsh-gv-button dsh-gv-zoom-button"
+                aria-label={text('zoom.out')}
+                title={text('zoom.out')}
+                onClick={() => zoomBy(1 / ZOOM_STEP)}
+              >
+                −
+              </button>
+              <button
+                type="button"
+                className="dsh-gv-button dsh-gv-zoom-value"
+                aria-label={text('zoom.reset')}
+                title={text('zoom.reset')}
+                onClick={resetTransform}
+              >
+                {`${Math.round(zoom * 100)}%`}
+              </button>
+              <button
+                type="button"
+                className="dsh-gv-button dsh-gv-zoom-button"
+                aria-label={text('zoom.in')}
+                title={text('zoom.in')}
+                onClick={() => zoomBy(ZOOM_STEP)}
+              >
+                +
+              </button>
+              <button
+                type="button"
+                className="dsh-gv-button"
+                aria-label={text('zoom.reset')}
+                title={text('zoom.reset')}
+                onClick={resetTransform}
+              >
+                ↺
+              </button>
+            </div>
+          </>
+        )}
+        <button
+          type="button"
+          className="dsh-gv-button"
+          aria-expanded={!collapsed}
+          onClick={() => setCollapsed((value) => !value)}
+        >
+          {text(collapsed ? 'toolbar.expand' : 'toolbar.collapse')}
+        </button>
       </div>
-      <div className="dsh-gv-body">
+      <div className="dsh-gv-body" style={collapsed ? { display: 'none' } : undefined}>
         <div
           className="dsh-gv-editor-pane"
           style={showEditor ? editorStyle() : { display: 'none' }}

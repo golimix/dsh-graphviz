@@ -15,6 +15,13 @@ export type GraphvizKey =
   | 'editor.loading'
   | 'editor.fallback'
   | 'graph.aria'
+  | 'zoom.aria'
+  | 'zoom.in'
+  | 'zoom.out'
+  | 'zoom.reset'
+  | 'toolbar.collapse'
+  | 'toolbar.expand'
+  | 'collapsed.note'
 
 /** English dictionary, the fallback for every other locale. */
 export const en: Record<GraphvizKey, string> = {
@@ -32,6 +39,13 @@ export const en: Record<GraphvizKey, string> = {
   'editor.loading': 'Loading editor…',
   'editor.fallback': 'Editor unavailable; using plain text.',
   'graph.aria': 'Graphviz diagram',
+  'zoom.aria': 'Zoom controls',
+  'zoom.in': 'Zoom in',
+  'zoom.out': 'Zoom out',
+  'zoom.reset': 'Reset zoom',
+  'toolbar.collapse': 'Collapse',
+  'toolbar.expand': 'Expand',
+  'collapsed.note': 'diagram hidden',
 }
 
 /** Chinese dictionary. */
@@ -50,6 +64,13 @@ export const zh: Record<GraphvizKey, string> = {
   'editor.loading': '正在加载编辑器…',
   'editor.fallback': '编辑器不可用，已切换为纯文本编辑。',
   'graph.aria': 'Graphviz 图形',
+  'zoom.aria': '缩放控制',
+  'zoom.in': '放大',
+  'zoom.out': '缩小',
+  'zoom.reset': '重置缩放',
+  'toolbar.collapse': '折叠',
+  'toolbar.expand': '展开',
+  'collapsed.note': '图形已折叠',
 }
 
 /** Dictionaries registered under the `graphviz` namespace. */

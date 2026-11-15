@@ -219,6 +219,7 @@
 }
 
 .dsh-gv-canvas {
+  position: relative;
   display: flex;
   flex: 1;
   align-items: center;
@@ -227,6 +228,28 @@
   padding: 16px;
   overflow: hidden;
   background: var(--dsw-alias-bg-layer-1);
+  cursor: grab;
+  touch-action: none;
+}
+
+.dsh-gv-canvas:focus-visible {
+  outline: 2px solid var(--dsh-gv-accent);
+  outline-offset: -2px;
+}
+
+.dsh-gv-canvas-inner {
+  width: 100%;
+  height: 100%;
+  transform-origin: 0 0;
+  transition: transform 60ms ease-out;
+  user-select: none;
+  will-change: transform;
+}
+
+.dsh-gv-canvas-inner[data-dragging='true'],
+.dsh-gv-canvas:active {
+  cursor: grabbing;
+  transition: none;
 }
 
 .dsh-gv-canvas svg {
@@ -235,4 +258,36 @@
   height: 100%;
   max-width: 100%;
   max-height: 100%;
+}
+
+.dsh-gv-zoomctl {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 1px;
+  border: 0.5px solid var(--dsw-alias-border-l2);
+  border-radius: 7px;
+}
+
+.dsh-gv-zoomctl .dsh-gv-button {
+  border: 0;
+  padding: 3px 8px;
+}
+
+.dsh-gv-zoom-button {
+  font-variant-numeric: tabular-nums;
+  min-width: 26px;
+  justify-content: center;
+}
+
+.dsh-gv-zoom-value {
+  min-width: 48px;
+  justify-content: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.dsh-gv-collapsed-note {
+  margin-left: 8px;
+  color: var(--dsw-alias-label-tertiary);
+  font-size: 12px;
 }
