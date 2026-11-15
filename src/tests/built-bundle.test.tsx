@@ -74,7 +74,7 @@ describe('built bundle', () => {
   it('registers three fence layers and renders a real Graphviz SVG through the lazy chunk', async () => {
     const registrations: Registration[] = []
     execute(artifact('client.js'), registrations)
-    const main = registrations.find((entry) => entry.id === '@local/dsh-graphviz' && entry.chunk === undefined)
+    const main = registrations.find((entry) => entry.id === '@limix/dsh-graphviz' && entry.chunk === undefined)
     expect(main).toBeDefined()
     if (main === undefined) return
 

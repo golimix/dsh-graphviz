@@ -26,7 +26,7 @@ function check(condition, message) {
 
 check(/export\s*\{[^}]*apply/.test(host) || /export function apply/.test(host), 'dist/index.js must export apply')
 check(client.includes('window.__ModuleLoader__.load('), 'dist/client.js must register with the module loader')
-check(/id:"@local\/dsh-graphviz"/.test(client), 'dist/client.js must register the package id')
+check(/id:"@limix\/dsh-graphviz"/.test(client), 'dist/client.js must register the package id')
 check(!client.includes('@viz-js/viz'), 'dist/client.js must not inline the Graphviz engine')
 check(engine.includes('window.__ModuleLoader__.load('), 'dist/client.engine.js must register with the module loader')
 check(/chunk:"client\.engine\.js"/.test(engine), 'dist/client.engine.js must register as a package chunk')

@@ -43,7 +43,7 @@ function contextDouble(): {
 
 describe('client entry', () => {
   beforeEach(() => {
-    document.querySelectorAll('style[data-plugin="@local/dsh-graphviz"]').forEach((node) => node.remove())
+    document.querySelectorAll('style[data-plugin="@limix/dsh-graphviz"]').forEach((node) => node.remove())
   })
 
   it('declares the services it needs', () => {
@@ -55,9 +55,9 @@ describe('client entry', () => {
     apply(ctx)
     expect(registered.map((entry) => entry.key)).toEqual(['dot', 'graphviz', 'gv'])
     expect(registered.map((entry) => entry.id)).toEqual([
-      '@local/dsh-graphviz/fence/dot',
-      '@local/dsh-graphviz/fence/graphviz',
-      '@local/dsh-graphviz/fence/gv',
+      '@limix/dsh-graphviz/fence/dot',
+      '@limix/dsh-graphviz/fence/graphviz',
+      '@limix/dsh-graphviz/fence/gv',
     ])
     for (const entry of registered) {
       expect(entry.name).toBe('conversation.chat.markdown.fence')
@@ -69,8 +69,8 @@ describe('client entry', () => {
     const { ctx, effects, cleanups } = contextDouble()
     apply(ctx)
     expect(effects).toEqual(['dsh-graphviz: dictionaries', 'dsh-graphviz: styles'])
-    expect(document.querySelectorAll('style[data-plugin="@local/dsh-graphviz"]')).toHaveLength(1)
+    expect(document.querySelectorAll('style[data-plugin="@limix/dsh-graphviz"]')).toHaveLength(1)
     for (const cleanup of cleanups) cleanup()
-    expect(document.querySelectorAll('style[data-plugin="@local/dsh-graphviz"]')).toHaveLength(0)
+    expect(document.querySelectorAll('style[data-plugin="@limix/dsh-graphviz"]')).toHaveLength(0)
   })
 })

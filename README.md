@@ -1,4 +1,4 @@
-# @local/dsh-graphviz
+# @limix/dsh-graphviz
 
 DSH 的 TypeScript Graphviz 查看器 bundle。它接管 Chat 中的 `dot`、`graphviz`、`gv` 代码围栏，渲染为可交互、可编辑的 SVG 图形。用户文档见 [docs/DETAIL.md](docs/DETAIL.md)。
 
@@ -16,6 +16,9 @@ src/
   client/locales.ts       # zh/en 字典
   shared/contract.ts      # host/client/chunk/test 共享常量与类型
   tests/                  # vitest 单元测试
+openspec/
+  specs/                  # 主规格（OpenSpec）
+  changes/archive/        # 归档变更
 scripts/build.mjs         # esbuild 构建三个产物
 scripts/verify-dist.mjs   # 产物契约检查（含真实渲染）
 dist/                     # 构建产物，随仓库提交以便 link 安装直接加载
@@ -44,12 +47,16 @@ pnpm run verify      # typecheck + test + build + 产物契约
 - **主题与文案**：颜色只用 `--dsw-alias-*` token；可见文案经 locale 服务注册，`en`/`zh` 键集合由测试锁定。
 - **可降级编辑器**：Monaco 是固定版本的 CDN 资源，加载失败不阻塞编辑和渲染。
 
-## 安装与切换
+## 安装
 
 本地 link 安装：
 
 ```sh
-dsh plugin --profile <name> add link:/absolute/path/to/bundles/dsh-graphviz
+dsh plugin --profile <name> add link:/absolute/path/to/dsh-graphviz
 ```
 
-或在 Plugins 页面选择 **Add plugin** 并指向该目录。启用后请禁用旧的 `@local/graphviz-viewer`，避免同一 fence key 被重复注册。回滚只需反向切换。
+或在 Plugins 页面选择 **Add plugin** 并指向该目录。该 bundle 是仓库唯一的 Graphviz 围栏渲染插件，同一 profile 中不应再安装其他注册 `dot`/`graphviz`/`gv` 的插件。
+
+## OpenSpec
+
+交付记录与源码同目录：`openspec/specs/` 是主规格，`openspec/changes/archive/` 保留归档变更。在该目录执行 `openspec list`、`openspec validate --strict` 可直接校验；该目录随发布 `files` 清单分发。

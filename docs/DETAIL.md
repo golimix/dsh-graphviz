@@ -39,6 +39,8 @@ digraph G {
 - 源码编辑的语法高亮与补全需要联网加载 Monaco；离线时自动使用纯文本编辑器。
 - 不提供 PNG/PDF 导出。
 
-## 与旧 `graphviz-viewer` 的关系
+## 唯一实现与交付记录
 
-这是独立的新 bundle（包名 `@local/dsh-graphviz`，Loader 行 `dsh-graphviz`），旧包 `bundles/graphviz-viewer` 原样保留。启用新包时应禁用旧包，否则两个插件会同时接管相同围栏并重复渲染。
+`@limix/dsh-graphviz`（Loader 行 `dsh-graphviz`）是仓库唯一的 Graphviz 围栏渲染插件：同一 profile 中不应再安装其他注册 `dot`/`graphviz`/`gv` 的插件，否则同一围栏会被重复渲染。
+
+OpenSpec 交付记录随 bundle 维护：`openspec/specs/` 是主规格，`openspec/changes/archive/` 保存归档变更，二者都在发布 `files` 清单内。在仓库根目录执行 `openspec list --specs` 或 `openspec validate --strict` 即可审阅与校验。

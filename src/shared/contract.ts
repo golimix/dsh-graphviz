@@ -5,7 +5,7 @@
  */
 
 /** Package id; also the prefix of every slot registration id. */
-export const PACKAGE_ID = '@local/dsh-graphviz'
+export const PACKAGE_ID = '@limix/dsh-graphviz'
 
 /** Chat slot that wraps a Markdown fence. */
 export const FENCE_SLOT = 'conversation.chat.markdown.fence'
