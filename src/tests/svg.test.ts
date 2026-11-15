@@ -60,10 +60,32 @@ describe('sanitizeSvg', () => {
     expect(second).toContain('id="gv2-node1"')
   })
 
-  it('maps black ink to theme tokens and picks readable text on light fills', () => {
+  it('maps black ink to a fixed dark ink when the diagram authors a light background', () => {
     const svg = sanitizeSvg(sample, { idPrefix: 'gv1-' })
+    expect(svg).not.toContain('var(--dsw-alias-label-primary')
+    expect(svg).toContain('fill:#111827')
+  })
+
+  it('keeps theme ink when the diagram paints no background', () => {
+    const plain = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">
+      <g class="graph"><g class="node"><ellipse fill="none" stroke="black" cx="5" cy="5" rx="4" ry="4"/><text x="5" y="6">a</text></g></g>
+    </svg>`
+    const svg = sanitizeSvg(plain, { idPrefix: 'gv-' })
     expect(svg).toContain('var(--dsw-alias-label-primary, #111827)')
-    expect(svg).toContain('#111827')
+  })
+
+  it('reads light ink on an authored dark background and keeps dark ink on light cells', () => {
+    const dark = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 60">
+      <g class="graph">
+        <polygon fill="#1a1a2e" stroke="none" points="-4,4 -4,-56 96,-56 96,4 -4,4"/>
+        <polygon fill="yellow" stroke="none" points="10,-30 10,-45 60,-45 60,-30 10,-30"/>
+        <text x="20" y="-35">on light cell</text>
+        <text x="20" y="-10">on dark canvas</text>
+      </g>
+    </svg>`
+    const svg = sanitizeSvg(dark, { idPrefix: 'gv-' })
+    expect(svg).toContain('fill:#111827')
+    expect(svg).toContain('fill:#f3f4f6')
   })
 
   it('rejects malformed SVG', () => {

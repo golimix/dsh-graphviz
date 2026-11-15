@@ -171,7 +171,45 @@ var NAMED_COLORS = {
   grey: "#808080",
   whitesmoke: "#f5f5f5",
   ivory: "#fffff0",
-  beige: "#f5f5dc"
+  beige: "#f5f5dc",
+  yellow: "#ffff00",
+  gold: "#ffd700",
+  orange: "#ffa500",
+  red: "#ff0000",
+  green: "#008000",
+  lime: "#00ff00",
+  olive: "#808000",
+  blue: "#0000ff",
+  navy: "#000080",
+  purple: "#800080",
+  magenta: "#ff00ff",
+  fuchsia: "#ff00ff",
+  cyan: "#00ffff",
+  aqua: "#00ffff",
+  teal: "#008080",
+  pink: "#ffc0cb",
+  brown: "#a52a2a",
+  maroon: "#800000",
+  silver: "#c0c0c0",
+  lightblue: "#add8e6",
+  lightgreen: "#90ee90",
+  lightyellow: "#ffffe0",
+  lightcyan: "#e0ffff",
+  lightpink: "#ffb6c1",
+  darkred: "#8b0000",
+  darkblue: "#00008b",
+  darkgreen: "#006400",
+  darkgray: "#a9a9a9",
+  darkgrey: "#a9a9a9",
+  dimgray: "#696969",
+  dimgrey: "#696969",
+  royalblue: "#4169e1",
+  skyblue: "#87ceeb",
+  steelblue: "#4682b4",
+  tomato: "#ff6347",
+  violet: "#ee82ee",
+  wheat: "#f5deb3",
+  khaki: "#f0e68c"
 };
 function sanitizeSvg(raw, options) {
   if (typeof DOMParser === "undefined") throw new Error("SVG sanitizing needs a DOM");
@@ -284,21 +322,39 @@ function mergeClass(current, name) {
   if (current === null || current.trim() === "") return name;
   return current.includes(name) ? current : `${current} ${name}`;
 }
+function explicitBackground(root) {
+  const graph = root.querySelector("g.graph") ?? root;
+  for (const child of graph.children) {
+    if (child.localName !== "polygon" && child.localName !== "rect") continue;
+    const fill = child.getAttribute("fill");
+    if (fill === null || fill.trim() === "") continue;
+    const color = normalizeColor(fill);
+    if (color === "none" || color === "transparent") continue;
+    return color;
+  }
+  return null;
+}
+function inkOn(background) {
+  return luminance(background) > 0.6 ? "#111827" : "#f3f4f6";
+}
 function applyThemeColors(root) {
+  const authoredBackground = explicitBackground(root);
   for (const element of [root, ...root.querySelectorAll("*")]) {
     if (element.localName === "text" || element.localName === "tspan" || element.localName === "textPath") {
       const fill = element.getAttribute("fill");
       if (fill !== null && !isBlack(fill)) continue;
-      const background = nearestFill(element);
-      const onLight = background !== null && luminance(background) > 0.6;
-      setStyle(element, "fill", onLight ? "#111827" : "var(--dsw-alias-label-primary, #111827)");
+      const x = numberAttribute(element, "x");
+      const y = numberAttribute(element, "y");
+      const background = nearestFill(element) ?? paintedFillAt(root, x, y) ?? authoredBackground;
+      const ink = background !== null ? inkOn(background) : "var(--dsw-alias-label-primary, #111827)";
+      setStyle(element, "fill", ink);
       continue;
     }
     if (isBlack(element.getAttribute("fill"))) {
-      setStyle(element, "fill", "var(--dsw-alias-label-primary, #111827)");
+      setStyle(element, "fill", authoredBackground !== null ? inkOn(authoredBackground) : "var(--dsw-alias-label-primary, #111827)");
     }
     if (isBlack(element.getAttribute("stroke"))) {
-      setStyle(element, "stroke", "var(--dsw-alias-label-primary, #111827)");
+      setStyle(element, "stroke", authoredBackground !== null ? inkOn(authoredBackground) : "var(--dsw-alias-label-primary, #111827)");
     }
   }
 }
@@ -312,6 +368,62 @@ function nearestFill(element) {
     current = current.parentElement;
   }
   return null;
+}
+function numberAttribute(element, name) {
+  const value = Number.parseFloat(element.getAttribute(name) ?? "");
+  return Number.isFinite(value) ? value : 0;
+}
+function shapeBounds(element) {
+  if (element.localName === "rect") {
+    return {
+      x: numberAttribute(element, "x"),
+      y: numberAttribute(element, "y"),
+      width: numberAttribute(element, "width"),
+      height: numberAttribute(element, "height")
+    };
+  }
+  if (element.localName === "ellipse") {
+    const cx = numberAttribute(element, "cx");
+    const cy = numberAttribute(element, "cy");
+    const rx = numberAttribute(element, "rx");
+    const ry = numberAttribute(element, "ry");
+    return { x: cx - rx, y: cy - ry, width: rx * 2, height: ry * 2 };
+  }
+  if (element.localName === "polygon") {
+    const points = (element.getAttribute("points") ?? "").trim().split(/\s+/);
+    const xs = [];
+    const ys = [];
+    for (const point of points) {
+      const [xText, yText] = point.split(",");
+      const x = Number.parseFloat(xText ?? "");
+      const y = Number.parseFloat(yText ?? "");
+      if (Number.isFinite(x) && Number.isFinite(y)) {
+        xs.push(x);
+        ys.push(y);
+      }
+    }
+    if (xs.length === 0 || ys.length === 0) return null;
+    const minX = Math.min(...xs);
+    const minY = Math.min(...ys);
+    return { x: minX, y: minY, width: Math.max(...xs) - minX, height: Math.max(...ys) - minY };
+  }
+  return null;
+}
+function paintedFillAt(root, x, y) {
+  let best = null;
+  for (const shape of root.querySelectorAll("polygon, rect, ellipse")) {
+    const fill = shape.getAttribute("fill");
+    if (fill === null || fill.trim() === "") continue;
+    const color = normalizeColor(fill);
+    if (color === "none" || color === "transparent") continue;
+    const bounds = shapeBounds(shape);
+    if (bounds === null) continue;
+    const inside = x >= bounds.x && x <= bounds.x + bounds.width && y >= bounds.y && y <= bounds.y + bounds.height;
+    if (!inside) continue;
+    const area = bounds.width * bounds.height;
+    if (best === null || area < best.area) best = { area, color };
+  }
+  return best?.color ?? null;
 }
 function isBlack(value) {
   if (value === null) return false;
