@@ -1,62 +1,64 @@
 # @limix/dsh-graphviz
 
-DSH 的 TypeScript Graphviz 查看器 bundle。它接管 Chat 中的 `dot`、`graphviz`、`gv` 代码围栏，渲染为可缩放、可平移、可折叠、可编辑的 SVG 图形。用户文档见 [docs/DETAIL.md](docs/DETAIL.md)。
+English | [中文](README.zh.md)
 
-## 目录
+A TypeScript Graphviz viewer bundle for DSH. It takes over `dot`, `graphviz`, and `gv` code fences in Chat and renders them as zoomable, pannable, collapsible, editable SVG diagrams. User documentation: [docs/DETAIL.md](docs/DETAIL.md).
+
+## Layout
 
 ```
 src/
-  host/index.ts           # Host 入口（无资源，仅保持行身份）
-  client/index.tsx        # 注册 locale、样式与三层 fence
-  client/fence/           # GraphvizFence：渲染状态、布局、分隔条
-  client/editor/          # Monaco 加载、DOT 语法、编辑器与降级
-  client/engine-chunk.ts  # 引擎 chunk 入口（打包 @viz-js/viz）
-  client/engine-loader.ts # require.async 懒加载与重试
-  client/svg.ts           # SVG 清洗、id 前缀、主题映射
-  client/locales.ts       # zh/en 字典
-  shared/contract.ts      # host/client/chunk/test 共享常量与类型
-  tests/                  # vitest 单元测试
+  host/index.ts           # Host entry (no resources, keeps the Loader row identity)
+  client/index.tsx        # registers locale, styles, and the three fence layers
+  client/fence/           # GraphvizFence: render state, layout, splitter
+  client/editor/          # Monaco loading, DOT grammar, editor and fallback
+  client/engine-chunk.ts  # engine chunk entry (bundles @viz-js/viz)
+  client/engine-loader.ts # require.async lazy loading and retry
+  client/svg.ts           # SVG sanitizing, id prefixing, theme mapping
+  client/locales.ts       # zh/en dictionaries
+  shared/contract.ts      # constants and types shared by host/client/chunk/tests
+  tests/                  # vitest unit tests
 openspec/
-  specs/                  # 主规格（OpenSpec）
-  changes/archive/        # 归档变更
-scripts/build.mjs         # esbuild 构建三个产物
-scripts/verify-dist.mjs   # 产物契约检查（含真实渲染）
-dist/                     # 构建产物，随仓库提交以便 link 安装直接加载
+  specs/                  # main specs (OpenSpec)
+  changes/archive/        # archived changes
+scripts/build.mjs         # esbuild build for the three artifacts
+scripts/verify-dist.mjs   # artifact contract check (includes a real render)
+dist/                     # built artifacts, committed so link installs load directly
 ```
 
-## 开发
+## Development
 
 ```sh
 pnpm install
 pnpm run typecheck   # tsc --noEmit
 pnpm run test        # vitest
-pnpm run build       # 产出 dist/index.js、dist/client.js、dist/client.engine.js
-pnpm run verify      # typecheck + test + build + 产物契约
+pnpm run build       # writes dist/index.js, dist/client.js, dist/client.engine.js
+pnpm run verify      # typecheck + test + build + artifact contract
 ```
 
-产物说明：
+Artifacts:
 
-- `dist/index.js`：ESM Host 入口。
-- `dist/client.js`：DSH 客户端模块系统的 lazy-CJS factory，React 从平台模块表解析。
-- `dist/client.engine.js`：包内 chunk，登记为 `chunk: "client.engine.js"`，由 `require.async` 按需加载，内含完整 Graphviz WASM 构建。
+- `dist/index.js`: ESM Host entry.
+- `dist/client.js`: lazy-CJS factory for the DSH client module system; React resolves through the platform module table.
+- `dist/client.engine.js`: package-local chunk registered as `chunk: "client.engine.js"`, loaded on demand through `require.async`, carrying the full Graphviz WASM build.
 
-## 架构要点
+## Architecture
 
-- **按需引擎**：主 bundle 不静态导入 `@viz-js/viz`，首次渲染才通过 DSH 模块加载器请求 chunk；失败清空缓存，下一次渲染重试。
-- **安全边界**：`sanitizeSvg` 是唯一注入点前的清洗层，元素 allowlist、危险 URL/样式拒绝、实例级 id 前缀都有测试覆盖。
-- **主题与文案**：颜色只用 `--dsw-alias-*` token；可见文案经 locale 服务注册，`en`/`zh` 键集合由测试锁定。
-- **可降级编辑器**：Monaco 是固定版本的 CDN 资源，加载失败不阻塞编辑和渲染。
+- **On-demand engine**: the main bundle never statically imports `@viz-js/viz`; the first render asks the DSH module loader for the chunk, a failure clears the cache, and the next render retries.
+- **Safety boundary**: `sanitizeSvg` is the only cleaning layer before injection; element allowlists, unsafe URL/style rejection, and per-instance id prefixes all have test coverage.
+- **Theme and copy**: colors only use `--dsw-alias-*` tokens; visible copy is registered through the locale service, and tests lock the `en`/`zh` key sets.
+- **Editor with fallback**: Monaco is a CDN resource at a pinned version; a load failure never blocks editing or rendering.
 
-## 安装
+## Install
 
-本地 link 安装：
+Local link install:
 
 ```sh
 dsh plugin --profile <name> add link:/absolute/path/to/dsh-graphviz
 ```
 
-或在 Plugins 页面选择 **Add plugin** 并指向该目录。该 bundle 是仓库唯一的 Graphviz 围栏渲染插件，同一 profile 中不应再安装其他注册 `dot`/`graphviz`/`gv` 的插件。
+Or pick **Add plugin** in the Plugins page and point it at this directory. This bundle is the repository's only Graphviz fence renderer; do not install another plugin that registers `dot`/`graphviz`/`gv` in the same profile.
 
 ## OpenSpec
 
-交付记录与源码同目录：`openspec/specs/` 是主规格，`openspec/changes/archive/` 保留归档变更。在该目录执行 `openspec list`、`openspec validate --strict` 可直接校验；该目录随发布 `files` 清单分发。
+The delivery record lives beside the source: `openspec/specs/` holds the main specs and `openspec/changes/archive/` keeps archived changes. Run `openspec list` or `openspec validate --strict` there to review and validate; the directory ships inside the published `files` list.

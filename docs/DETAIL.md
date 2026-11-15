@@ -1,24 +1,24 @@
 # Graphviz diagrams
 
-将 Chat 中的 `dot`、`graphviz`、`gv` 代码围栏渲染为可交互的 Graphviz SVG 图形。源码编辑、布局切换与流式状态都在同一个面板内完成。
+Interactive Graphviz SVG diagrams for `dot`, `graphviz`, and `gv` code fences in Chat. Source editing, layout switching, and streaming state all happen inside one panel.
 
-## 功能
+## Features
 
-- **三种围栏语言**：`dot`、`graphviz`、`gv`；其他语言的代码块保持原样。
-- **流式安全**：围栏仍在生成时显示原始代码，内容稳定后才调用引擎。
-- **三种布局**：上图下文（TB）、左右分栏（LR）、仅图形（Graph）。
-- **宽度铺满、高度自适应**：默认视图按面板宽度等比铺满图形（小图最多放大 2×，避免过度放大），面板高度完全跟随图形高度（像网页一样向下延伸，不设固定视窗、不裁切）；聊天区滚动即可看全。
-- **缩放与平移**：工具栏 `− / 百分比 / + / ↺`、滚轮围绕指针缩放、指针拖动平移、双击重置；范围 25%–600%，支持键盘 `+`/`-`/`0` 与方向键。放大后图形变宽，左右拖动查看。
-- **放大查看**：在 92vh 覆盖层里改用「适应视窗」的整图预览（受限视窗），适合先看全貌再回到页面视图放大细节。
-- **折叠**：工具栏「折叠」把面板收成一行，折叠期间不渲染、不加载引擎；展开后自动恢复。
-- **锁定尺寸**：工具栏🔒锁定后编辑器分割条不可拖动，避免误拖改变源码/图形比例；🔓恢复。
-- **可调分隔条**：鼠标/触控拖动，聚焦后用方向键、Home、End 调整。
-- **源码编辑**：Monaco 提供 DOT 高亮与补全（固定 0.52.2，来自 jsDelivr CDN）；CDN 不可用时自动降级为纯文本输入框，编辑与渲染继续可用。
-- **主题适配**：面板使用 DSH 主题 token；Graphviz 的黑色描边和文字会映射到当前主题前景色，浅色填充节点上的文字自动改为深色。
-- **安全渲染**：SVG 先经 allowlist 清洗，移除脚本、`foreignObject`、事件属性和危险 URL，并按实例前缀隔离 id。
-- **错误提示**：语法或引擎错误显示在图形区域，修正源码或点击重试即可恢复。
+- **Three fence languages**: `dot`, `graphviz`, `gv`; code blocks in any other language stay untouched.
+- **Streaming safety**: while the fence is still being generated the raw code is shown, and the engine only runs once the content settles.
+- **Three layouts**: editor above graph (TB), editor beside graph (LR), and graph only.
+- **Width fills, height follows**: the default view scales the diagram to the panel width (small diagrams are magnified at most 2×), and the panel height follows the diagram exactly like a web page — no fixed inner viewport, no cropping; scroll the conversation to see the whole diagram.
+- **Zoom and pan**: toolbar `− / percentage / + / ↺`, wheel zoom around the pointer, drag to pan, double-click to reset; range 25%–600%, plus keyboard `+`/`-`/`0` and arrow keys. Zooming widens the diagram, and dragging reveals the overflow horizontally.
+- **Maximized view**: a 92vh overlay switches to a bounded “fit the whole diagram” preview, useful for an overview before returning to the page-like view for detail.
+- **Collapse**: the toolbar collapses the panel to a single row; while collapsed no rendering happens and no engine work starts, and expanding restores it automatically.
+- **Lock size**: the toolbar lock makes the editor splitter non-draggable, so an accidental drag cannot change the source/graph ratio.
+- **Adjustable splitter**: drag with mouse or touch, and adjust from the keyboard with arrow keys, Home, and End.
+- **Source editing**: Monaco provides DOT highlighting and completion (pinned 0.52.2 from the jsDelivr CDN); when the CDN is unavailable it falls back to a plain text field while editing and rendering keep working.
+- **Theme adaptation**: the panel uses DSH theme tokens; Graphviz black strokes and text map to the current theme foreground, and text on light fills switches to a dark color automatically.
+- **Safe rendering**: SVG passes through an allowlist sanitizer that removes scripts, `foreignObject`, event attributes, and dangerous URLs, and isolates ids with a per-instance prefix.
+- **Error reporting**: syntax or engine errors appear inside the graph area; fixing the source or pressing retry recovers.
 
-## 用法
+## Usage
 
 ````markdown
 ```dot
@@ -30,22 +30,22 @@ digraph G {
 ```
 ````
 
-渲染完成后可在编辑器中修改源码，图形会去抖更新。图形中的 `href` 链接会在新标签页打开。
+After rendering, edit the source in the editor and the diagram updates after a debounce. `href` links inside the diagram open in a new tab.
 
-## 引擎
+## Engine
 
-渲染使用 [`@viz-js/viz`](https://github.com/mdaines/viz-js) 的完整版构建（Graphviz 16.1.0，WebAssembly 内联）。引擎被构建为插件内的 `client.engine.js` chunk，只在首次需要渲染时由 DSH 客户端模块系统加载，随后复用同一实例；它不从 CDN 下载，仓库也不保存 `full.render.js` 拷贝。
+Rendering uses the full build of [`@viz-js/viz`](https://github.com/mdaines/viz-js) (Graphviz 16.1.0, WebAssembly inlined). The engine is built as the plugin-local `client.engine.js` chunk, loaded by the DSH client module system on the first render and reused afterwards; it never downloads from a CDN, and the repository keeps no copy of `full.render.js`.
 
-## 限制
+## Limits
 
-- 仅输出 SVG，仅使用 `dot` 布局引擎。
-- 引擎 chunk 约 1.5 MB，首次渲染需要下载并初始化 WASM；之后不再重复加载。
-- 超大图在主线程布局，可能造成短暂卡顿。
-- 源码编辑的语法高亮与补全需要联网加载 Monaco；离线时自动使用纯文本编辑器。
-- 不提供 PNG/PDF 导出。
+- SVG only, and only the `dot` layout engine.
+- The engine chunk is about 1.5 MB; the first render downloads and initializes the WASM, and later renders reuse it.
+- Very large diagrams lay out on the main thread and may cause a brief stall.
+- Syntax highlighting and completion for the source editor need network access for Monaco; offline it falls back to a plain text editor.
+- No PNG/PDF export.
 
-## 唯一实现与交付记录
+## Single implementation and delivery record
 
-`@limix/dsh-graphviz`（Loader 行 `dsh-graphviz`）是仓库唯一的 Graphviz 围栏渲染插件：同一 profile 中不应再安装其他注册 `dot`/`graphviz`/`gv` 的插件，否则同一围栏会被重复渲染。
+`@limix/dsh-graphviz` (Loader row `dsh-graphviz`) is the repository's only Graphviz fence renderer: do not install another plugin that registers `dot`/`graphviz`/`gv` in the same profile, or the same fence renders twice.
 
-OpenSpec 交付记录随 bundle 维护：`openspec/specs/` 是主规格，`openspec/changes/archive/` 保存归档变更，二者都在发布 `files` 清单内。在仓库根目录执行 `openspec list --specs` 或 `openspec validate --strict` 即可审阅与校验。
+The OpenSpec delivery record ships with the bundle: `openspec/specs/` holds the main specs and `openspec/changes/archive/` keeps archived changes, and both are inside the published `files` list. Run `openspec list --specs` or `openspec validate --strict` at the repository root to review and validate.
