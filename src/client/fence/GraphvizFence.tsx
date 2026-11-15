@@ -29,11 +29,14 @@ const PAN_STEP = 24
 /** Movement in px before a pointer gesture counts as a pan rather than a click. */
 const DRAG_THRESHOLD = 4
 
+/** Largest magnification the fitted view will apply to a small diagram. */
+const MAX_FIT_SCALE = 2
+
 /** Panel height bounds for the auto layout and the drag handle. */
 const MIN_BODY_HEIGHT = 220
-const MAX_BODY_HEIGHT = 960
+const MAX_BODY_HEIGHT = 1200
 const MIN_GRAPH_HEIGHT = 200
-const MAX_GRAPH_HEIGHT = 680
+const MAX_GRAPH_HEIGHT = 1000
 
 /**
  * Read the SVG viewBox size so the viewport can fit and centre the diagram.
@@ -138,7 +141,13 @@ export function GraphvizPanel({ props }: { props: FenceProps }) {
   )
 
   const pxMode = viewBox !== null && canvasSize.width > 0 && canvasSize.height > 0
-  const fitScale = pxMode ? Math.min(canvasSize.width / (viewBox as { width: number }).width, canvasSize.height / (viewBox as { height: number }).height) : 1
+  const fitScale = pxMode
+    ? Math.min(
+      MAX_FIT_SCALE,
+      canvasSize.width / (viewBox as { width: number }).width,
+      canvasSize.height / (viewBox as { height: number }).height,
+    )
+    : 1
 
   /**
    * Resolve the rendered box for one zoom/pan pair.
@@ -469,10 +478,14 @@ export function GraphvizPanel({ props }: { props: FenceProps }) {
     if (viewBox === null || containerWidth <= 0) return 0
     const aspect = viewBox.height / viewBox.width
     const graphWidth = layout === 'lr' ? containerWidth * (1 - (split ?? DEFAULT_LR_PERCENT) / 100) : containerWidth
-    const graphHeight = Math.min(MAX_GRAPH_HEIGHT, Math.max(MIN_GRAPH_HEIGHT, graphWidth * aspect))
+    // Aim for the natural width-fit height, but never magnify a small diagram
+    // beyond MAX_FIT_SCALE, and never exceed the hard cap.
+    const natural = Math.min(graphWidth * aspect, viewBox.height * MAX_FIT_SCALE)
+    const graphHeight = Math.min(MAX_GRAPH_HEIGHT, Math.max(MIN_GRAPH_HEIGHT, natural))
     const editorHeight = layout === 'tb' && showEditor ? (split ?? DEFAULT_TB_HEIGHT) : 0
-    const viewportMax = typeof window === 'undefined' ? MAX_BODY_HEIGHT : Math.max(MIN_BODY_HEIGHT, window.innerHeight * 0.85)
-    return Math.round(Math.min(MAX_BODY_HEIGHT, viewportMax, Math.max(MIN_BODY_HEIGHT, graphHeight + editorHeight)))
+    // The panel grows to the diagram's proportions (the chat scrolls around it);
+    // only the hard caps keep a pathological diagram from taking over the page.
+    return Math.round(Math.min(MAX_BODY_HEIGHT, Math.max(MIN_BODY_HEIGHT, graphHeight + editorHeight)))
   }, [viewBox, containerWidth, layout, split, showEditor])
 
   const resolvedBodyHeight = bodyHeight ?? (autoBodyHeight > 0 ? autoBodyHeight : null)

@@ -659,10 +659,11 @@ var MAX_ZOOM = 6;
 var ZOOM_STEP = 1.25;
 var PAN_STEP = 24;
 var DRAG_THRESHOLD = 4;
+var MAX_FIT_SCALE = 2;
 var MIN_BODY_HEIGHT = 220;
-var MAX_BODY_HEIGHT = 960;
+var MAX_BODY_HEIGHT = 1200;
 var MIN_GRAPH_HEIGHT = 200;
-var MAX_GRAPH_HEIGHT = 680;
+var MAX_GRAPH_HEIGHT = 1e3;
 function parseViewBox(svg) {
   const match = /viewBox=(?:"|')\s*[\d.-]+\s+[\d.-]+\s+([\d.]+)\s+([\d.]+)/i.exec(svg);
   if (match === null) return null;
@@ -710,7 +711,11 @@ function GraphvizPanel({ props }) {
     [state]
   );
   const pxMode = viewBox !== null && canvasSize.width > 0 && canvasSize.height > 0;
-  const fitScale = pxMode ? Math.min(canvasSize.width / viewBox.width, canvasSize.height / viewBox.height) : 1;
+  const fitScale = pxMode ? Math.min(
+    MAX_FIT_SCALE,
+    canvasSize.width / viewBox.width,
+    canvasSize.height / viewBox.height
+  ) : 1;
   const geometry = (z, p) => {
     if (!pxMode || viewBox === null) return { x: p.x, y: p.y, width: 0, height: 0, scale: z };
     const scale = fitScale * z;
@@ -949,10 +954,10 @@ function GraphvizPanel({ props }) {
     if (viewBox === null || containerWidth <= 0) return 0;
     const aspect = viewBox.height / viewBox.width;
     const graphWidth = layout === "lr" ? containerWidth * (1 - (split ?? DEFAULT_LR_PERCENT) / 100) : containerWidth;
-    const graphHeight = Math.min(MAX_GRAPH_HEIGHT, Math.max(MIN_GRAPH_HEIGHT, graphWidth * aspect));
+    const natural = Math.min(graphWidth * aspect, viewBox.height * MAX_FIT_SCALE);
+    const graphHeight = Math.min(MAX_GRAPH_HEIGHT, Math.max(MIN_GRAPH_HEIGHT, natural));
     const editorHeight = layout === "tb" && showEditor ? split ?? DEFAULT_TB_HEIGHT : 0;
-    const viewportMax = typeof window === "undefined" ? MAX_BODY_HEIGHT : Math.max(MIN_BODY_HEIGHT, window.innerHeight * 0.85);
-    return Math.round(Math.min(MAX_BODY_HEIGHT, viewportMax, Math.max(MIN_BODY_HEIGHT, graphHeight + editorHeight)));
+    return Math.round(Math.min(MAX_BODY_HEIGHT, Math.max(MIN_BODY_HEIGHT, graphHeight + editorHeight)));
   }, [viewBox, containerWidth, layout, split, showEditor]);
   const resolvedBodyHeight = bodyHeight ?? (autoBodyHeight > 0 ? autoBodyHeight : null);
   const beginHeightResize = (event) => {
